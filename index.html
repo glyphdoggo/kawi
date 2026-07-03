@@ -85,7 +85,7 @@
       </div>
     </div>
 
-    <script>
+        <script>
       const inputArea  = document.getElementById("input");
       const outputArea = document.getElementById("output");
 
@@ -181,7 +181,6 @@
         "Sakumna jalma gubrag ka alam dunya téh sipatna merdika jeung boga martabat katut hak-hak anu sarua. Maranéhna dibéré akal jeung haté nurani, campur-gaul jeung sasamana aya dina sumanget duduluran.",
         "Bawat tao'y isinilang na may layà at magkakapantáy ang tagláy na dangál at karapatán. Silá'y pinagkalooban ng pangangatwiran at budhî, at dapat magpálagayan ang isá't-isá sa diwà ng pagkákapatiran.",
         "An gabos na tawo ipinangaking may katalinkasan asin parantay sa dignidad asin derechos. Sinda gabos tinawan nin pag-isip asin conciencia kaya dapat na makipag-iriba sa lambang saro bilang mga magturugang.",
-        // "Teraka afaka sy mitovy zo sy fahamendrehana ny olombelona rehetra. Samy manan-tsaina sy fieritreretana ka tokony hifampitondra am- pirahalahiana.",
         "Semua manusia dilahirkan bebas dan sama rata dari segi maruah dan hak-hak. Mereka mempunyai pemikiran dan perasaan hati dan hendaklah bertindak di antara satu sama lain dengan semangat persaudaraan.",
         "Ang tanang katawhan gipakatawo nga may kagawasan ug managsama sa kabililhon. Sila gigasahan sa salabutan ug tanlag og mag-ilhanay isip managsoon sa usa'g-usa diha sa diwa sa ospiritu.",
         "Sâdhâjâna orèng lahèr mardhika èsarengè dhrâjhât klabân ha'-ha' sè padâ. Sâdhâjâna èparèngè akal sareng nurani bân kodhu areng-sareng akanca kadhi tarètan.",
@@ -286,56 +285,54 @@
               }
 
               if (!matched) {
-  let nextIdx = i + cLen;
-  let nextConsLen = 0;
+                let nextIdx = i + cLen;
+                let nextConsLen = 0;
 
-  // Skip over internal cluster-breakers
-  while (nextIdx < textLower.length && '\'-;'.includes(textLower[nextIdx])) {
-    nextIdx++;
-  }
+                // Skip over internal cluster-breakers for Lookahead 1
+                while (nextIdx < textLower.length && '\'-;'.includes(textLower[nextIdx])) {
+                  nextIdx++;
+                }
 
-  // Lookahead 1: Find the immediate next consonant
-  if (nextIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[nextIdx])) {
-    for (const testLen of [2, 1]) {
-      if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
-        nextConsLen = testLen;
-        break;
-      }
-    }
-  }
+                // Lookahead 1: Find the immediate next consonant
+                if (nextIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[nextIdx])) {
+                  for (const testLen of [2, 1]) {
+                    if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
+                      nextConsLen = testLen;
+                      break;
+                    }
+                  }
+                }
 
-  let nextIsConsonant = (nextConsLen > 0);
-  let thirdIsConsonant = false;
+                let nextIsConsonant = (nextConsLen > 0);
+                let thirdIsConsonant = false;
 
-  // Lookahead 2: If a second consonant exists, check if a THIRD consonant follows it
-  if (nextIsConsonant) {
-    let thirdIdx = nextIdx + nextConsLen;
-    while (thirdIdx < textLower.length && '\'-;'.includes(thirdIdx)) {
-      thirdIdx++;
-    }
-    if (thirdIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[thirdIdx])) {
-      for (const testLen of [2, 1]) {
-        if (standardConsonants.has(textLower.slice(thirdIdx, thirdIdx + testLen))) {
-          thirdIsConsonant = true;
-          break;
-        }
-      }
-    }
-  }
+                // Lookahead 2: Look strictly PAST Consonant 2 to see if Consonant 3 exists
+                if (nextIsConsonant) {
+                  let thirdIdx = nextIdx + nextConsLen;
+                  while (thirdIdx < textLower.length && '\'-;'.includes(textLower[thirdIdx])) {
+                    thirdIdx++;
+                  }
+                  if (thirdIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[thirdIdx])) {
+                    for (const testLen of [2, 1]) {
+                      if (standardConsonants.has(textLower.slice(thirdIdx, thirdIdx + testLen))) {
+                        thirdIsConsonant = true;
+                        break;
+                      }
+                    }
+                  }
+                }
 
-  // --- HISTORICAL CLUSTER RESOLUTION ---
-  // If there's a third consonant coming down the line (e.g., k -> s -> t),
-  // we kill the current consonant immediately with a Pangkon. This creates the
-  // historical "tek-sto" / "as-tronomi" split syllable structure.
-  if (nextIsConsonant && !thirdIsConsonant) {
-    result += kawiGlyph + '𑽂'; // Safe to stack 2 consonants
-  } else {
-    result += kawiGlyph + '𑽁'; // Force Pangkon for triple clusters or word boundaries
-  }
+                // If a third consonant is waiting down the line, truncate the cluster 
+                // early with a Pangkon to produce historical syllable splits (tek-sto / as-tronomi).
+                if (nextIsConsonant && !thirdIsConsonant) {
+                  result += kawiGlyph + '𑽂'; 
+                } else {
+                  result += kawiGlyph + '𑽁'; 
+                }
 
-  matchedLength = cLen;
-  matched = true;
-}
+                matchedLength = cLen;
+                matched = true;
+              }
             }
             if (matched) break;
           }
