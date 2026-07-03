@@ -211,7 +211,7 @@
               let potentialCoda = textLower.slice(i, i + cLen);
               if (codas.has(potentialCoda)) {
                 let nextChar = textLower[i + cLen];
-                if (!nextChar || ' \t.,;:-\''.includes(nextChar)) {
+                if (!nextChar || ' \n\t.,;:-\''.includes(nextChar)) {
                   let lastChar = result.slice(-1);
                   if (result.length > 0 && !'𑽉𑽅𑽄𑽊𑽃 '.includes(lastChar)) {
                     result += codas.get(potentialCoda);
@@ -292,7 +292,7 @@
                 let nextIdx = i + cLen;
                 let nextIsConsonant = false;
 
-                while (nextIdx < textLower.length && '\'-;.:,'.includes(textLower[nextIdx])) {
+                while (nextIdx < textLower.length && ''.includes(textLower[nextIdx])) {
                   nextIdx++;
                 }
 
