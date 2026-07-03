@@ -90,9 +90,9 @@
       const outputArea = document.getElementById("output");
 
       const codas = new Map([
-  ['ng', '𑼁'],
-  ['h', '𑼃']
-]);
+        ['ng', '𑼁'],
+        ['h', '𑼃']
+      ]);
       
       const CONFIGOPTIONS = {
         pepet: {
@@ -103,40 +103,36 @@
         }
       };
 
-      function cycleOption(key) {
-        const opt = CONFIGOPTIONS[key];
-        opt.index = (opt.index + 1) % opt.states.length;
-        opt.element.value = opt.labels[opt.index];
-
-        updateMappings();
-        transcribe();
-      }
-
-      const SAMPLES = [
-        "Semua orang dilahirkan merdeka dan mempunyai martabat dan hak-hak yang sama. Mereka dikaruniai akal dan hati nurani dan hendaknya bergaul satu sama lain dalam semangat persaudaraan.", // Indonesian
-        "Sabén uwong kalairaké kanthi mardikå lan darbé martabat lan hak-hak kang pådhå. Kabèh pinaringan akal lan kalbu sartå kaajab pasrawungan anggoné mêmitran siji lan sijiné kanthi jiwå sumadulur.", // Javanese ꧋ꦱꦧꦼꦤ꧀ꦲꦸꦮꦺꦴꦁꦏꦭꦲꦶꦂꦫꦏꦺꦏꦤ꧀ꦛꦶꦩꦂꦢꦶꦏꦭꦤ꧀ꦢꦂꦧꦺꦩꦂꦠꦧꦠ꧀ꦭꦤ꧀ꦲꦏ꧀ꦲꦏ꧀ꦏꦁꦥꦝ꧉ ꦏꦧꦺꦃꦥꦶꦤꦫꦶꦁꦔꦤ꧀ꦲꦏꦭ꧀ꦭꦤ꧀ꦏꦭ꧀ꦧꦸꦱꦂꦠꦏꦲꦗꦧ꧀ꦥꦱꦿꦮꦸꦁꦔꦤ꧀ꦲꦁꦒꦺꦴꦤ꧀ꦤꦺꦩꦼꦩꦶꦠꦿꦤ꧀ꦱꦶꦗꦶꦭꦤ꧀ꦱꦶꦗꦶꦤꦺꦏꦤ꧀ꦛꦶꦗꦶꦮꦱꦸꦩꦢꦸꦭꦸꦂ꧉
-        "Sakumna jalma gubrag ka alam dunya téh sipatna merdika jeung boga martabat katut hak-hak anu sarua. Maranéhna dibéré akal jeung haté nurani, campur-gaul jeung sasamana aya dina sumanget duduluran.", // Sundanese ᮞᮊᮥᮙ᮪ᮔ ᮏᮜ᮪ᮙ ᮌᮥᮘᮢᮌ᮪ ᮊ ᮃᮜᮙ᮪ ᮓᮥᮑ ᮒᮦᮂ ᮞᮤᮕᮒ᮪ᮔ ᮙᮨᮁᮓᮤᮊ ᮏᮩᮀ ᮘᮧᮌ ᮙᮁᮒᮘᮒ᮪ ᮊᮒᮥᮒ᮪ ᮠᮊ᮪-ᮠᮊ᮪ ᮃᮔᮥ ᮞᮛᮥᮃ. ᮙᮛᮔᮦᮂᮔ ᮓᮤᮘᮦᮛᮦ ᮃᮊᮜ᮪ ᮏᮩᮀ ᮠᮒᮦ ᮔᮥᮛᮔᮤ, ᮎᮙ᮪ᮕᮥᮁ-ᮌᮅᮜ᮪ ᮏᮩᮀ ᮞᮞᮙᮔ ᮃᮚ ᮓᮤᮔ ᮞᮥᮙᮍᮨᮒ᮪ ᮓᮥᮓᮥᮜᮥᮛᮔ᮪.
-        "Bawat tao'y isinilang na may layà at magkakapantáy ang tagláy na dangál at karapatán. Silá'y pinagkalooban ng pangangatwiran at budhî, at dapat magpálagayan ang isá't-isá sa diwà ng pagkákapatiran.", // Tagalog ᜊᜏᜆ᜔ ᜆᜂᜌ᜔ ᜁᜐᜒᜈᜒᜎᜅ᜔ ᜈ ᜋᜌ᜔ ᜎᜌ ᜀᜆ᜔ ᜋᜄ᜔ᜃᜃᜉᜈ᜔ᜆᜌ᜔ ᜀᜅ᜔ ᜆᜄ᜔ᜎᜌ᜔ ᜈ ᜇᜅᜎ᜔ ᜀᜆ᜔ ᜃᜇᜉᜆᜈ᜔᜶ ᜐᜒᜎᜌ᜔ ᜉᜒᜈᜄ᜔ᜃᜎᜓᜂᜊᜈ᜔ ᜈᜅ᜔ ᜃᜆ᜔ᜏᜒᜇᜈ᜔ ᜀᜆ᜔ ᜊᜓᜇᜑᜒ᜵ ᜀᜆ᜔ ᜇᜉᜆ᜔ ᜋᜄ᜔ᜉᜎᜄᜌᜈ᜔ ᜀᜅ᜔ ᜁᜐᜆ᜔ ᜁᜐ ᜐ ᜇᜒᜏ ᜈᜅ᜔ ᜉᜄ᜔ᜃᜃᜉᜆᜒᜇᜈ᜔᜶
-        "An gabos na tawo ipinangaking may katalinkasan asin parantay sa dignidad asin derechos. Sinda gabos tinawan nin pag-isip asin conciencia kaya dapat na makipag-iriba sa lambang saro bilang mga magturugang.", // Bikol
-        "Teraka afaka sy mitovy zo sy fahamendrehana ny olombelona rehetra. Samy manan-tsaina sy fieritreretana ka tokony hifampitondra am- pirahalahiana.", // Malagasy
-        "Semua manusia dilahirkan bebas dan sama rata dari segi maruah dan hak-hak. Mereka mempunyai pemikiran dan perasaan hati dan hendaklah bertindak di antara satu sama lain dengan semangat persaudaraan.", // Malay
-        "Ang tanang katawhan gipakatawo nga may kagawasan ug managsama sa kabililhon. Sila gigasahan sa salabutan ug tanlag og mag-ilhanay isip managsoon sa usa'g-usa diha sa diwa sa ospiritu.", // Cebuano
-        "Sâdhâjâna orèng lahèr mardhika èsarengè dhrâjhât klabân ha'-ha' sè padâ. Sâdhâjâna èparèngè akal sareng nurani bân kodhu areng-sareng akanca kadhi tarètan.", // Madurese
-        "Amin nga tao nga sibibiag ket naiyanak a siwawayawaya ken addaan iti agpapada nga dayaw ken kalintegan. Naikkanda ti panagikalintegan ken konsensya a nasken ti panagtitinnulong iti meysa ken meysa iti espiritu nga nainkak-absatan.", // Ilocano
-        "Ang tanán nga táwo ginbún-ag nga hílway kag may pag-alalangay sa dungóg kag kinamatárong. Silá ginhatágan sing pagpamat-ud kag balatyágon kag nagakadápat nga magbinuligáy sa kahulugan sang pag-inuturáy.", // Hiligaynon
-        "Sadonyo urang lahia mardeka jo punyo martabaik jo hak-hak nan samo. Nyo diagiah aka jo hati nurani sarato handaknyo babaua samo nan lainnyo dalam samangaik badunsanak." // Minangkabau
-      ];
-
-      let sampleIndex = 0;
-
-      function loadSample() {
-        inputArea.value = SAMPLES[sampleIndex];
-        sampleIndex = (sampleIndex + 1) % SAMPLES.length;
-        transcribe();
-      }
-
       const independentVowels = new Map([
-        ['a', '𑼄'], ['ā', '𑼅'], ['aa', '𑼅'], ['i', '𑼆'], ['ī', '𑼇'], ['ii', '𑼇'], ['u', '𑼈'], ['ū', '𑼉'], ['uu', '𑼉'], ['e', '𑼎'], ['ai', '𑼏'], ['o', '𑼐'], ['au', '𑼐𑼴'], ['r̥', '𑼊'], ['r̥̄', '𑼋'], ['l̥', '𑼌'], ['l̥̄', '𑼍']
+        ['a', '𑼄'], ['ā', '𑼅'], ['aa', '𑼅'], ['i', '𑼆'], ['ī', '𑼇'], ['ii', '𑼇'], 
+        ['u', '𑼈'], ['ū', '𑼉'], ['uu', '𑼉'], ['e', '𑼎'], ['ai', '𑼏'], ['o', '𑼐'], ['au', '𑼐𑼴']
+      ]);
+
+      const consonantMappings = new Map([
+        ['ka', '𑼒'], ['kha', '𑼓'], ['ga', '𑼔'], ['gha', '𑼕'], ['ṅa', '𑼖'], ['ca', '𑼗'], 
+        ['cha', '𑼘'], ['ja', '𑼙'], ['jha', '𑼚'], ['ña', '𑼛'], ['ṭa', '𑼜'], ['ṭha', '𑼝'], 
+        ['ḍa', '𑼞'], ['ḍha', '𑼟'], ['ṇa', '𑼠'], ['ta', '𑼡'], ['tha', '𑼢'], ['da', '𑼣'], 
+        ['dha', '𑼤'], ['na', '𑼥'], ['pa', '𑼦'], ['pha', '𑼧'], ['ba', '𑼨'], ['bha', '𑼩'], 
+        ['ma', '𑼪'], ['ya', '𑼫'], ['ra', '𑼬'], ['la', '𑼭'], ['va', '𑼮'], ['śa', '𑼯'], 
+        ['ṣa', '𑼰'], ['sa', '𑼱'], ['ha', '𑼲'], ['jña', '𑼳']
+      ]);
+
+      const standardConsonants = new Map([
+        ['k', 'ka'], ['kh', 'kha'], ['g', 'ga'], ['gh', 'gha'], ['ṅ', 'ṅa'], ['ng', 'ṅa'], 
+        ['ŋ', 'ṅa'], ['c', 'ca'], ['ch', 'cha'], ['j', 'ja'], ['jh', 'jha'], ['ñ', 'ña'], 
+        ['ny', 'ña'], ['ṭ', 'ṭa'], ['ṭh', 'ṭha'], ['ḍ', 'ḍa'], ['ḍh', 'ḍha'], ['ṇ', 'ṇa'], 
+        ['t', 'ta'], ['th', 'tha'], ['d', 'da'], ['dh', 'dha'], ['n', 'na'], ['p', 'pa'], 
+        ['ph', 'pha'], ['b', 'ba'], ['bh', 'bha'], ['m', 'ma'], ['y', 'ya'], ['r', 'ra'], 
+        ['l', 'la'], ['v', 'va'], ['w', 'va'], ['ś', 'śa'], ['ṣ', 'ṣa'], ['s', 'sa'], 
+        ['h', 'ha'], ['jñ', 'jña'], ['jny', 'jña'], ['gy', 'jña']
+      ]);
+
+      const punctuationMap = new Map([
+        [' ', '𑽉'],
+        ['\t', '𑽅'],
+        ['.', '𑽄'],
+        [':', '𑽊'],
+        [',', '𑽃']
       ]);
 
       let vowelMappings = new Map();
@@ -157,7 +153,7 @@
           { keys: ['o'], val: '𑼾𑼴' },
           { keys: ['au'], val: '𑼿𑼴' },
           { keys: ['ě', 'ĕ', 'ë', 'ə'], val: optPepet === 'classic' ? '𑽀' : '' },
-          { keys: ['ěě', 'ĕĕ', 'ö', 'əə'], val: '𑽀𑼴' },
+          { keys: ['ěě', 'ĕĕ', 'ö', 'əə'], val: '𑽀𑼴' }
         ];
 
         for (const group of vowelGroups) {
@@ -167,26 +163,37 @@
         }
       }
 
+      function cycleOption(key) {
+        const opt = CONFIGOPTIONS[key];
+        opt.index = (opt.index + 1) % opt.states.length;
+        opt.element.value = opt.labels[opt.index];
+        updateMappings();
+        transcribe();
+      }
+
       updateMappings();
 
-      const consonantMappings = new Map([
-        ['ka', '𑼒'], ['kha', '𑼓'], ['ga', '𑼔'], ['gha', '𑼕'], ['ṅa', '𑼖'], ['ca', '𑼗'], ['cha', '𑼘'], ['ja', '𑼙'], ['jha', '𑼚'], ['ña', '𑼛'], ['ṭa', '𑼜'], ['ṭha', '𑼝'], ['ḍa', '𑼞'], ['ḍha', '𑼟'], ['ṇa', '𑼠'], ['ta', '𑼡'], ['tha', '𑼢'], ['da', '𑼣'], ['dha', '𑼤'], ['na', '𑼥'], ['pa', '𑼦'], ['pha', '𑼧'], ['ba', '𑼨'], ['bha', '𑼩'], ['ma', '𑼪'], ['ya', '𑼫'], ['ra', '𑼬'], ['la', '𑼭'], ['va', '𑼮'], ['śa', '𑼯'], ['ṣa', '𑼰'], ['sa', '𑼱'], ['ha', '𑼲'], ['jña', '𑼳']
-      ]);
+      const SAMPLES = [
+        "Semua orang dilahirkan merdeka dan mempunyai martabat dan hak-hak yang sama. Mereka dikaruniai akal dan hati nurani dan hendaknya bergaul satu sama lain dalam semangat persaudaraan.",
+        "Sabén uwong kalairaké kanthi mardikå lan darbé martabat lan hak-hak kang pådhå. Kabèh pinaringan akal lan kalbu sartå kaajab pasrawungan anggoné mêmitran siji lan sijiné kanthi jiwå sumadulur.",
+        "Sakumna jalma gubrag ka alam dunya téh sipatna merdika jeung boga martabat katut hak-hak anu sarua. Maranéhna dibéré akal jeung haté nurani, campur-gaul jeung sasamana aya dina sumanget duduluran.",
+        "Bawat tao'y isinilang na may layà at magkakapantáy ang tagláy na dangál at karapatán. Silá'y pinagkalooban ng pangangatwiran at budhî, at dapat magpálagayan ang isá't-isá sa diwà ng pagkákapatiran.",
+        "An gabos na tawo ipinangaking may katalinkasan asin parantay sa dignidad asin derechos. Sinda gabos tinawan nin pag-isip asin conciencia kaya dapat na makipag-iriba sa lambang saro bilang mga magturugang.",
+        "Teraka afaka sy mitovy zo sy fahamendrehana ny olombelona rehetra. Samy manan-tsaina sy fieritreretana ka tokony hifampitondra am- pirahalahiana.",
+        "Semua manusia dilahirkan bebas dan sama rata dari segi maruah dan hak-hak. Mereka mempunyai pemikiran dan perasaan hati dan hendaklah bertindak di antara satu sama lain dengan semangat persaudaraan.",
+        "Ang tanang katawhan gipakatawo nga may kagawasan ug managsama sa kabililhon. Sila gigasahan sa salabutan ug tanlag og mag-ilhanay isip managsoon sa usa'g-usa diha sa diwa sa ospiritu.",
+        "Sâdhâjâna orèng lahèr mardhika èsarengè dhrâjhât klabân ha'-ha' sè padâ. Sâdhâjâna èparèngè akal sareng nurani bân kodhu areng-sareng akanca kadhi tarètan.",
+        "Amin nga tao nga sibibiag ket naiyanak a siwawayawaya ken addaan iti agpapada nga dayaw ken kalintegan. Naikkanda ti panagikalintegan ken konsensya a nasken ti panagtitinnulong iti meysa ken meysa iti espiritu nga nainkak-absatan.",
+        "Ang tanán nga táwo ginbún-ag nga hílway kag may pag-alalangay sa dungóg kag kinamatárong. Silá ginhatágan sing pagpamat-ud kag balatyágon kag nagakadápat nga magbinuligáy sa kahulugan sang pag-inuturáy.",
+        "Sadonyo urang lahia mardeka jo punyo martabaik jo hak-hak nan samo. Nyo diagiah aka jo hati nurani sarato handaknyo babaua samo nan lainnyo dalam samangaik badunsanak."
+      ];
 
-      const standardConsonants = new Map([
-        ['k', 'ka'], ['kh', 'kha'], ['g', 'ga'], ['gh', 'gha'], ['ṅ', 'ṅa'], ['ng', 'ṅa'], ['ŋ', 'ṅa'], ['c', 'ca'], ['ch', 'cha'], ['j', 'ja'], ['jh', 'jha'], ['ñ', 'ña'], ['ny', 'ña'], ['ṭ', 'ṭa'], ['ṭh', 'ṭha'], ['ḍ', 'ḍa'], ['ḍh', 'ḍha'], ['ṇ', 'ṇa'], ['t', 'ta'], ['th', 'tha'], ['d', 'da'], ['dh', 'dha'], ['n', 'na'], ['p', 'pa'], ['ph', 'pha'], ['b', 'ba'], ['bh', 'bha'], ['m', 'ma'], ['y', 'ya'], ['r', 'ra'], ['l', 'la'], ['v', 'va'], ['w', 'va'], ['ś', 'śa'], ['ṣ', 'ṣa'], ['s', 'sa'], ['h', 'ha'], ['jñ', 'jña'], ['jny', 'jña'], ['gy', 'jña']
-      ]);
-
-      const punctuationMap = new Map([
-  [' ', '𑽉'],  // Word separator / space
-  ['\t', '𑽅'], // Tab
-  ['.', '𑽄'],  // Period / Full stop
-  [':', '𑽊'],  // Colon
-  [',', '𑽃'],  // Comma
-]);
-      
-
-      const virama = '𑽂';
+      let sampleIndex = 0;
+      function loadSample() {
+        inputArea.value = SAMPLES[sampleIndex];
+        sampleIndex = (sampleIndex + 1) % SAMPLES.length;
+        transcribe();
+      }
 
       function transcribe() {
         outputArea.value = austroToKawi(inputArea.value);
@@ -198,41 +205,43 @@
         let i = 0;
 
         while (i < textLower.length) {
-let codaMatched = false;
-for (const cLen of [2, 1]) {
-  if (i + cLen <= textLower.length) {
-    let potentialCoda = textLower.slice(i, i + cLen);
-    if (codas.has(potentialCoda)) {
-      let nextChar = textLower[i + cLen];
-      if (!nextChar || ' \t.,;:-\''.includes(nextChar)) {
-        result += codas.get(potentialCoda);
-        i += cLen;
-        codaMatched = true;
-        break;
-      }
-    }
-  }
-}
-if (codaMatched) continue;
+          let codaMatched = false;
+          for (const cLen of [2, 1]) {
+            if (i + cLen <= textLower.length) {
+              let potentialCoda = textLower.slice(i, i + cLen);
+              if (codas.has(potentialCoda)) {
+                let nextChar = textLower[i + cLen];
+                if (!nextChar || ' \t.,;:-\''.includes(nextChar)) {
+                  let lastChar = result.slice(-1);
+                  if (result.length > 0 && !'𑽉𑽅𑽄𑽊𑽃 '.includes(lastChar)) {
+                    result += codas.get(potentialCoda);
+                    i += cLen;
+                    codaMatched = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          if (codaMatched) continue;
           
           let char = textLower[i];
 
-if ('\'-;'.includes(char)) {
-  i++;
-  continue;
-}
+          if ('\'-;'.includes(char)) {
+            i++;
+            continue;
+          }
 
-if (punctuationMap.has(char)) {
-  result += punctuationMap.get(char);
-  
-  if (i + 1 < textLower.length && textLower[i + 1] === ' ') {
-    result += ' ';
-    i += 2;
-  } else {
-    i++;
-  }
-  continue;
-}
+          if (punctuationMap.has(char)) {
+            result += punctuationMap.get(char);
+            if (i + 1 < textLower.length && textLower[i + 1] === ' ') {
+              result += ' ';
+              i += 2;
+            } else {
+              i++;
+            }
+            continue;
+          }
 
           let matched = false;
           let matchedLength = 1;
@@ -242,37 +251,32 @@ if (punctuationMap.has(char)) {
             let modernCons = textLower.slice(i, i + cLen);
 
             if (standardConsonants.has(modernCons)) {
-  // --- CLASSICAL REPHA INTERCEPTION ---
-  // If the current matched consonant is 'r' and it's followed by another consonant...
-  if (modernCons === 'r') {
-    let nextIdx = i + cLen;
-    let nextConsLen = 0;
+              if (modernCons === 'r') {
+                let nextIdx = i + cLen;
+                let nextConsLen = 0;
 
-    // Look ahead to see if a valid consonant follows the 'r'
-    for (const testLen of [2, 1]) {
-      if (nextIdx + testLen <= textLower.length) {
-        let subsequentCons = textLower.slice(nextIdx, nextIdx + testLen);
-        if (standardConsonants.has(subsequentCons)) {
-          nextConsLen = testLen;
-          break;
-        }
-      }
-    }
+                for (const testLen of [2, 1]) {
+                  if (nextIdx + testLen <= textLower.length) {
+                    let subsequentCons = textLower.slice(nextIdx, nextIdx + testLen);
+                    if (standardConsonants.has(subsequentCons)) {
+                      nextConsLen = testLen;
+                      break;
+                    }
+                  }
+                }
 
-    // If followed by a consonant, render the Kawi Repha character (𑼂) immediately,
-    // then advance the pointer to let the main loop process that next consonant normally!
-    if (nextConsLen > 0) {
-    result += '𑼂'; 
-    matchedLength = cLen; 
-    matched = true;
-    break; // Break the 'cLen' loop to fall down to the outer increment line: 'i += matchedLength;'
-  }
-}
+                if (nextConsLen > 0) {
+                  result += '𑼂'; 
+                  matchedLength = cLen; 
+                  matched = true;
+                  break;
+                }
+              }
 
-  let kawiBase = standardConsonants.get(modernCons);
-  let kawiGlyph = consonantMappings.get(kawiBase);
+              let kawiBase = standardConsonants.get(modernCons);
+              let kawiGlyph = consonantMappings.get(kawiBase);
 
-  for (const vLen of [2, 1]) {
+              for (const vLen of [2, 1]) {
                 if (i + cLen + vLen > textLower.length) continue;
                 let vowelSub = textLower.slice(i + cLen, i + cLen + vLen);
 
@@ -285,43 +289,37 @@ if (punctuationMap.has(char)) {
               }
 
               if (!matched) {
-  // Look ahead past this consonant to see what follows it
-  let nextIdx = i + cLen;
-  let nextIsConsonant = false;
+                let nextIdx = i + cLen;
+                let nextIsConsonant = false;
 
-  // Skip punctuation/spaces in our lookahead check to find the next actual character
-  while (nextIdx < textLower.length && ''.includes(textLower[nextIdx])) {
-    nextIdx++;
-  }
+                while (nextIdx < textLower.length && '\'-;.:,'.includes(textLower[nextIdx])) {
+                  nextIdx++;
+                }
 
-  if (nextIdx < textLower.length) {
-    // Check if the next non-punctuation character starts a standard consonant
-    for (const testLen of [2, 1]) {
-      if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
-        nextIsConsonant = true;
-        break;
-      }
-    }
-  }
+                if (nextIdx < textLower.length) {
+                  for (const testLen of [2, 1]) {
+                    if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
+                      nextIsConsonant = true;
+                      break;
+                    }
+                  }
+                }
 
-  // Logic: 
-  // If followed by another consonant, use the Stacker (𑽂) to subscript the *next* one.
-  // If followed by a space, punctuation, or end of string, use the Pangkon (𑽁).
-  if (nextIsConsonant) {
-    result += kawiGlyph + '𑽂'; 
-  } else {
-    result += kawiGlyph + '𑽁'; // Visible closing virama
-  }
+                if (nextIsConsonant) {
+                  result += kawiGlyph + '𑽂'; 
+                } else {
+                  result += kawiGlyph + '𑽁';
+                }
 
-  matchedLength = cLen;
-  matched = true;
-}
+                matchedLength = cLen;
+                matched = true;
+              }
             }
             if (matched) break;
           }
 
           if (!matched) {
-            for (const vLen of [2, 1]) {
+            for (const vLen of [3, 2, 1]) {
               if (i + vLen > textLower.length) continue;
               let vowelSub = textLower.slice(i, i + vLen);
 
