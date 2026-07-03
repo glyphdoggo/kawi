@@ -86,11 +86,14 @@
     </div>
 
     <script>
-      // Cache static DOM elements globally
       const inputArea  = document.getElementById("input");
       const outputArea = document.getElementById("output");
 
-      // Configuration options definitions with cached button references
+      const codas = new Map([
+  ['ng', '𑼁'],
+  ['h', '𑼃']
+]);
+      
       const CONFIGOPTIONS = {
         pepet: {
           states: ['classic', 'phonetic'],
@@ -103,8 +106,6 @@
       function cycleOption(key) {
         const opt = CONFIGOPTIONS[key];
         opt.index = (opt.index + 1) % opt.states.length;
-
-        // Use cached element reference
         opt.element.value = opt.labels[opt.index];
 
         updateMappings();
@@ -134,7 +135,6 @@
         transcribe();
       }
 
-      // Kawi Independent Vowels (Svara)
       const independentVowels = new Map([
         ['a', '𑼄'], ['ā', '𑼅'], ['i', '𑼆'], ['ī', '𑼇'], ['u', '𑼈'], ['ū', '𑼉'], ['e', '𑼎'], ['ai', '𑼏'], ['o', '𑼐'], ['au', '𑼐𑼴'], ['r̥', '𑼊'], ['r̥̄', '𑼋'], ['l̥', '𑼌'], ['l̥̄', '𑼍']
       ]);
@@ -142,7 +142,7 @@
       let vowelMappings = new Map();
 
       function updateMappings() {
-        vowelMappings.clear(); // Wipe the Map safely
+        vowelMappings.clear();
         const optPepet = CONFIGOPTIONS.pepet.states[CONFIGOPTIONS.pepet.index];
 
         const vowelGroups = [
@@ -158,8 +158,6 @@
           { keys: ['au'], val: '𑼿𑼴' },
           { keys: ['ě', 'ĕ', 'ë', 'ə'], val: optPepet === 'classic' ? '𑽀' : '' },
           { keys: ['ěě', 'ĕĕ', 'ö', 'əə'], val: '𑽀𑼴' },
-          { keys: ['r̥', 'ṛ'], val: '𑼺' },
-          { keys: ['r̥̄', 'r̥r̥', 'ṛṛ'], val: '𑼺𑼴' },
         ];
 
         for (const group of vowelGroups) {
@@ -172,18 +170,24 @@
       updateMappings();
 
       const consonantMappings = new Map([
-        // ['ka', '𑼒'], ['ga', '𑼔'], ['nga', '𑼖'], ['ca', '𑼗'], ['ja', '𑼙'], ['nya', '𑼛'], ['ta', '𑼡'], ['da', '𑼣'], ['na', '𑼥'], ['pa', '𑼦'], ['ba', '𑼨'], ['ma', '𑼪'], ['ya', '𑼫'], ['ra', '𑼬'], ['la', '𑼭'], ['wa', '𑼮'], ['sa', '𑼱'], ['śa', '𑼯'], ['ṣa', '𑼰'], ['ha', '𑼲']
         ['ka', '𑼒'], ['kha', '𑼓'], ['ga', '𑼔'], ['gha', '𑼕'], ['ṅa', '𑼖'], ['ca', '𑼗'], ['cha', '𑼘'], ['ja', '𑼙'], ['jha', '𑼚'], ['ña', '𑼛'], ['ṭa', '𑼜'], ['ṭha', '𑼝'], ['ḍa', '𑼞'], ['ḍha', '𑼟'], ['ṇa', '𑼠'], ['ta', '𑼡'], ['tha', '𑼢'], ['da', '𑼣'], ['dha', '𑼤'], ['na', '𑼥'], ['pa', '𑼦'], ['pha', '𑼧'], ['ba', '𑼨'], ['bha', '𑼩'], ['ma', '𑼪'], ['ya', '𑼫'], ['ra', '𑼬'], ['la', '𑼭'], ['va', '𑼮'], ['śa', '𑼯'], ['ṣa', '𑼰'], ['sa', '𑼱'], ['ha', '𑼲'], ['jña', '𑼳']
       ]);
 
       const standardConsonants = new Map([
-        // ['ng', 'nga'], ['ny', 'nya'], ['k', 'ka'], ['g', 'ga'], ['c', 'ca'], ['j', 'ja'], ['t', 'ta'], ['d', 'da'], ['n', 'na'], ['p', 'pa'], ['b', 'ba'], ['m', 'ma'], ['y', 'ya'], ['r', 'ra'], ['l', 'la'], ['w', 'wa'], ['v', 'wa'], ['s', 'sa'], ['h', 'ha'], ['ś', 'śa']
         ['k', 'ka'], ['kh', 'kha'], ['g', 'ga'], ['gh', 'gha'], ['ṅ', 'ṅa'], ['ng', 'ṅa'], ['ŋ', 'ṅa'], ['c', 'ca'], ['ch', 'cha'], ['j', 'ja'], ['jh', 'jha'], ['ñ', 'ña'], ['ny', 'ña'], ['ṭ', 'ṭa'], ['ṭh', 'ṭha'], ['ḍ', 'ḍa'], ['ḍh', 'ḍha'], ['ṇ', 'ṇa'], ['t', 'ta'], ['th', 'tha'], ['d', 'da'], ['dh', 'dha'], ['n', 'na'], ['p', 'pa'], ['ph', 'pha'], ['b', 'ba'], ['bh', 'bha'], ['m', 'ma'], ['y', 'ya'], ['r', 'ra'], ['l', 'la'], ['v', 'va'], ['w', 'va'], ['ś', 'śa'], ['ṣ', 'ṣa'], ['s', 'sa'], ['h', 'ha'], ['jñ', 'jña'], ['jny', 'jña'], ['gy', 'jña']
       ]);
 
+      const punctuationMap = new Map([
+  [' ', '𑽉'],  // Word separator / space
+  ['\t', '𑽅'], // Tab
+  ['.', '𑽄'],  // Period / Full stop
+  [':', '𑽊'],  // Colon
+  [',', '𑽃'],  // Comma
+]);
+      
+
       const virama = '𑽂';
 
-      // Optimized transcription call
       function transcribe() {
         outputArea.value = austroToKawi(inputArea.value);
       }
@@ -194,38 +198,39 @@
         let i = 0;
 
         while (i < textLower.length) {
+let codaMatched = false;
+for (const cLen of [2, 1]) {
+  if (i + cLen <= textLower.length) {
+    let potentialCoda = textLower.slice(i, i + cLen);
+    if (codas.has(potentialCoda)) {
+      let nextChar = textLower[i + cLen];
+      if (!nextChar || ' \t.,;:-\''.includes(nextChar)) {
+        result += codas.get(potentialCoda);
+        i += cLen;
+        codaMatched = true;
+        break;
+      }
+    }
+  }
+}
+if (codaMatched) continue;
+          
           let char = textLower[i];
 
-          if ('\'-;'.includes(char)) {
-            result += '';
-            i++;
-            continue;
-          } else if (' '.includes(char)) {
-            result += '𑽉';
-            i++;
-            continue;
-          } else if ('\t'.includes(char)) {
-            result += '𑽅';
-            i++;
-            continue;
-          } else if ('.'.includes(char)) {
-            result += '𑽄';
-            i++;
-            continue;
-          } else if (':'.includes(char)) {
-            result += '𑽊';
-            i++;
-            continue;
-          } else if (','.includes(char)) {
-            result += '𑽃';
-            i++;
-            continue;
-          }
+if ('\'-;'.includes(char)) {
+  i++;
+  continue;
+}
+
+if (punctuationMap.has(char)) {
+  result += punctuationMap.get(char);
+  i++;
+  continue;
+}
 
           let matched = false;
           let matchedLength = 1;
 
-          // Check for Consonant + Vowel sequences
           for (const cLen of [2, 1]) {
             if (i + cLen > textLower.length) continue;
             let modernCons = textLower.slice(i, i + cLen);
@@ -247,15 +252,41 @@
               }
 
               if (!matched) {
-                result += kawiGlyph + virama;
-                matchedLength = cLen;
-                matched = true;
-              }
+  // Look ahead past this consonant to see what follows it
+  let nextIdx = i + cLen;
+  let nextIsConsonant = false;
+
+  // Skip punctuation/spaces in our lookahead check to find the next actual character
+  while (nextIdx < textLower.length && '\'-; \t.:,'.includes(textLower[nextIdx])) {
+    nextIdx++;
+  }
+
+  if (nextIdx < textLower.length) {
+    // Check if the next non-punctuation character starts a standard consonant
+    for (const testLen of [2, 1]) {
+      if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
+        nextIsConsonant = true;
+        break;
+      }
+    }
+  }
+
+  // Logic: 
+  // If followed by another consonant, use the Stacker (𑽂) to subscript the *next* one.
+  // If followed by a space, punctuation, or end of string, use the Pangkon (𑽁).
+  if (nextIsConsonant) {
+    result += kawiGlyph + '𑽂'; 
+  } else {
+    result += kawiGlyph + '𑽁'; // Visible closing virama
+  }
+
+  matchedLength = cLen;
+  matched = true;
+}
             }
             if (matched) break;
           }
 
-          // Independent Vowel lookup
           if (!matched) {
             for (const vLen of [2, 1]) {
               if (i + vLen > textLower.length) continue;
