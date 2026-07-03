@@ -286,31 +286,56 @@
               }
 
               if (!matched) {
-                let nextIdx = i + cLen;
-                let nextIsConsonant = false;
+  let nextIdx = i + cLen;
+  let nextConsLen = 0;
 
-                while (nextIdx < textLower.length && ''.includes(textLower[nextIdx])) {
-                  nextIdx++;
-                }
+  // Skip over internal cluster-breakers
+  while (nextIdx < textLower.length && '\'-;'.includes(textLower[nextIdx])) {
+    nextIdx++;
+  }
 
-                if (nextIdx < textLower.length) {
-                  for (const testLen of [2, 1]) {
-                    if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
-                      nextIsConsonant = true;
-                      break;
-                    }
-                  }
-                }
+  // Lookahead 1: Find the immediate next consonant
+  if (nextIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[nextIdx])) {
+    for (const testLen of [2, 1]) {
+      if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
+        nextConsLen = testLen;
+        break;
+      }
+    }
+  }
 
-                if (nextIsConsonant) {
-                  result += kawiGlyph + '𑽂'; 
-                } else {
-                  result += kawiGlyph + '𑽁';
-                }
+  let nextIsConsonant = (nextConsLen > 0);
+  let thirdIsConsonant = false;
 
-                matchedLength = cLen;
-                matched = true;
-              }
+  // Lookahead 2: If a second consonant exists, check if a THIRD consonant follows it
+  if (nextIsConsonant) {
+    let thirdIdx = nextIdx + nextConsLen;
+    while (thirdIdx < textLower.length && '\'-;'.includes(thirdIdx)) {
+      thirdIdx++;
+    }
+    if (thirdIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[thirdIdx])) {
+      for (const testLen of [2, 1]) {
+        if (standardConsonants.has(textLower.slice(thirdIdx, thirdIdx + testLen))) {
+          thirdIsConsonant = true;
+          break;
+        }
+      }
+    }
+  }
+
+  // --- HISTORICAL CLUSTER RESOLUTION ---
+  // If there's a third consonant coming down the line (e.g., k -> s -> t),
+  // we kill the current consonant immediately with a Pangkon. This creates the
+  // historical "tek-sto" / "as-tronomi" split syllable structure.
+  if (nextIsConsonant && !thirdIsConsonant) {
+    result += kawiGlyph + '𑽂'; // Safe to stack 2 consonants
+  } else {
+    result += kawiGlyph + '𑽁'; // Force Pangkon for triple clusters or word boundaries
+  }
+
+  matchedLength = cLen;
+  matched = true;
+}
             }
             if (matched) break;
           }
