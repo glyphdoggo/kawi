@@ -305,47 +305,72 @@
 
                 let nextIsConsonant = (nextConsLen > 0);
                 let thirdIsConsonant = false;
+                let fourthIsConsonant = false;
 
-                // Lookahead 2: Look strictly PAST Consonant 2 to see if Consonant 3 exists
+                // Lookahead 2: Check for Consonant 3
                 if (nextIsConsonant) {
                   let thirdIdx = nextIdx + nextConsLen;
                   while (thirdIdx < textLower.length && '\'-;'.includes(textLower[thirdIdx])) {
                     thirdIdx++;
                   }
                   if (thirdIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[thirdIdx])) {
+                    let thirdConsLen = 0;
                     for (const testLen of [2, 1]) {
                       if (standardConsonants.has(textLower.slice(thirdIdx, thirdIdx + testLen))) {
+                        thirdConsLen = testLen;
                         thirdIsConsonant = true;
                         break;
+                      }
+                    }
+
+                    // Lookahead 3: Check for Consonant 4 (crucial for balancing pairs)
+                    if (thirdIsConsonant) {
+                      let fourthIdx = thirdIdx + thirdConsLen;
+                      while (fourthIdx < textLower.length && '\'-;'.includes(textLower[fourthIdx])) {
+                        fourthIdx++;
+                      }
+                      if (fourthIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[fourthIdx])) {
+                        for (const testLen of [2, 1]) {
+                          if (standardConsonants.has(textLower.slice(fourthIdx, fourthIdx + testLen))) {
+                            fourthIsConsonant = true;
+                            break;
+                          }
+                        }
                       }
                     }
                   }
                 }
 
-                // --- SMART MULTI-STACK CLUSTER RESOLUTION ---
-                // Check if the current consonant is a subscript (preceded by an open stacker)
+                // --- PERFECT RHYTHMIC CLUSTER RESOLUTION ---
                 let insideOpenStack = result.endsWith('𑽂');
 
                 if (nextIsConsonant) {
                   if (!insideOpenStack) {
-                    // If we are a fresh baseline consonant, we ALWAYS have room 
-                    // to form a stack of two, even if more consonants follow.
-                    result += kawiGlyph + '𑽂';
-                  } else if (!thirdIsConsonant) {
-                    // If we are already a subscript, we can only continue stacking 
-                    // if it doesn't cause a third vertical layer.
-                    result += kawiGlyph + '𑽂';
+                    // BASELINE RULE:
+                    // If 3 consonants are in a row (e.g., k-s-t), break immediately with Pangkon -> (tek-sto).
+                    // If 4 consonants are in a row (e.g., k-s-t-r), safe to stack into pairs -> (eks-tra).
+                    if (thirdIsConsonant && !fourthIsConsonant) {
+                      result += kawiGlyph + '𑽁';
+                    } else {
+                      result += kawiGlyph + '𑽂';
+                    }
                   } else {
-                    // Subscript slot filled and more are coming -> drop a Pangkon to break here.
-                    result += kawiGlyph + '𑽁';
+                    // SUBSCRIPT RULE:
+                    // If we are already a subscript, we must break if *any* more consonants follow.
+                    if (thirdIsConsonant) {
+                      result += kawiGlyph + '𑽁';
+                    } else {
+                      result += kawiGlyph + '𑽂';
+                    }
                   }
                 } else {
-                  // No consonants follow -> terminal word/syllable boundary.
+                  // No consonants follow -> terminal word boundary
                   result += kawiGlyph + '𑽁';
                 }
 
                 matchedLength = cLen;
                 matched = true;
+
               }
             }
             if (matched) break;
