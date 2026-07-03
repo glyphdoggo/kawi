@@ -322,12 +322,26 @@
                   }
                 }
 
-                // If a third consonant is waiting down the line, truncate the cluster 
-                // early with a Pangkon to produce historical syllable splits (tek-sto / as-tronomi).
-                if (nextIsConsonant && !thirdIsConsonant) {
-                  result += kawiGlyph + '𑽂'; 
+                // --- SMART MULTI-STACK CLUSTER RESOLUTION ---
+                // Check if the current consonant is a subscript (preceded by an open stacker)
+                let insideOpenStack = result.endsWith('𑽂');
+
+                if (nextIsConsonant) {
+                  if (!insideOpenStack) {
+                    // If we are a fresh baseline consonant, we ALWAYS have room 
+                    // to form a stack of two, even if more consonants follow.
+                    result += kawiGlyph + '𑽂';
+                  } else if (!thirdIsConsonant) {
+                    // If we are already a subscript, we can only continue stacking 
+                    // if it doesn't cause a third vertical layer.
+                    result += kawiGlyph + '𑽂';
+                  } else {
+                    // Subscript slot filled and more are coming -> drop a Pangkon to break here.
+                    result += kawiGlyph + '𑽁';
+                  }
                 } else {
-                  result += kawiGlyph + '𑽁'; 
+                  // No consonants follow -> terminal word/syllable boundary.
+                  result += kawiGlyph + '𑽁';
                 }
 
                 matchedLength = cLen;
