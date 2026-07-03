@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Austronesian Kawi Transcriber</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An easy-to-use tool for transcribing modern Austronesian languages into the Kawi script.">
+    <meta name="author" content="Daniel Saeger">
+
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Kawi&display=swap');
+
+      html, body {
+        margin: 0;
+        background-color: #003341;
+        color: #fed;
+        height: 100%;
+        font-family: "Noto Sans", sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+      }
+      textarea {
+        font-family: "Noto Sans", "Noto Sans Kawi", sans-serif;
+        background-color: #fed;
+        color: #003341;
+        width: 100%;
+        padding: 20px;
+        line-height: 1.25;
+        border-radius: 10px;
+        border: none;
+        box-sizing: border-box;
+        resize: vertical;
+        max-width: 70%;
+      }
+      .interface {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+      .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 30px;
+      }
+      .btn {
+        padding-inline: 12px;
+        padding-block: 6px;
+        background: #005266;
+        color: #fed;
+        border: 2px solid #fed;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .btn:active {
+        background: #003341;
+        transform: scale(0.97);
+      }
+      h3 { font-size: 22px }
+      h4 { opacity: .5; font-weight: 400; font-style: italic }
+    </style>
+  </head>
+  <body>
+    <div class="interface">
+      <div>
+        <h3>MODERN KAWI TRANSCRIBER</h3>
+        <h4>A Kawi orthography for Western Malayo-Polynesian languages</h4>
+      </div>
+
+      <div>
+        <textarea rows="5" id="input" placeholder="Type here in Javanese, Tagalog, Indonesian... :)" oninput="transcribe()"></textarea>
+      </div>
+
+      <div>
+        <textarea rows="5" id="output" readonly></textarea>
+      </div>
+
+      <div class="buttons">
+        <input id="btn-opt-pepet" class="btn" type="button" value="Schwa (ě) → 𑼽" onclick="cycleOption('pepet')">
+        <input id="sample-btn" class="btn" type="button" title="Load sample text" value="Sample text" onclick="loadSample()">
+      </div>
+    </div>
+
+    <script>
+      // Cache static DOM elements globally
+      const inputArea  = document.getElementById("input");
+      const outputArea = document.getElementById("output");
+
+      // Configuration options definitions with cached button references
+      const CONFIGOPTIONS = {
+        pepet: {
+          states: ['classic', 'phonetic'],
+          labels: ['Schwa (ě) → 𑼽 (Pepet)', 'Schwa (ě) → 𑼺 (Drop/Inherent)'],
+          index: 0,
+          element: document.getElementById("btn-opt-pepet")
+        }
+      };
+
+      function cycleOption(key) {
+        const opt = CONFIGOPTIONS[key];
+        opt.index = (opt.index + 1) % opt.states.length;
+
+        // Use cached element reference
+        opt.element.value = opt.labels[opt.index];
+
+        updateMappings();
+        transcribe();
+      }
+
+      const SAMPLES = [
+        "Semua orang dilahirkan merdeka dan mempunyai martabat dan hak-hak yang sama. Mereka dikaruniai akal dan hati nurani dan hendaknya bergaul satu sama lain dalam semangat persaudaraan.", // Indonesian
+        "Sabén uwong kalairaké kanthi mardikå lan darbé martabat lan hak-hak kang pådhå. Kabèh pinaringan akal lan kalbu sartå kaajab pasrawungan anggoné mêmitran siji lan sijiné kanthi jiwå sumadulur.", // Javanese ꧋ꦱꦧꦼꦤ꧀ꦲꦸꦮꦺꦴꦁꦏꦭꦲꦶꦂꦫꦏꦺꦏꦤ꧀ꦛꦶꦩꦂꦢꦶꦏꦭꦤ꧀ꦢꦂꦧꦺꦩꦂꦠꦧꦠ꧀ꦭꦤ꧀ꦲꦏ꧀ꦲꦏ꧀ꦏꦁꦥꦝ꧉ ꦏꦧꦺꦃꦥꦶꦤꦫꦶꦁꦔꦤ꧀ꦲꦏꦭ꧀ꦭꦤ꧀ꦏꦭ꧀ꦧꦸꦱꦂꦠꦏꦲꦗꦧ꧀ꦥꦱꦿꦮꦸꦁꦔꦤ꧀ꦲꦁꦒꦺꦴꦤ꧀ꦤꦺꦩꦼꦩꦶꦠꦿꦤ꧀ꦱꦶꦗꦶꦭꦤ꧀ꦱꦶꦗꦶꦤꦺꦏꦤ꧀ꦛꦶꦗꦶꦮꦱꦸꦩꦢꦸꦭꦸꦂ꧉
+        "Sakumna jalma gubrag ka alam dunya téh sipatna merdika jeung boga martabat katut hak-hak anu sarua. Maranéhna dibéré akal jeung haté nurani, campur-gaul jeung sasamana aya dina sumanget duduluran.", // Sundanese ᮞᮊᮥᮙ᮪ᮔ ᮏᮜ᮪ᮙ ᮌᮥᮘᮢᮌ᮪ ᮊ ᮃᮜᮙ᮪ ᮓᮥᮑ ᮒᮦᮂ ᮞᮤᮕᮒ᮪ᮔ ᮙᮨᮁᮓᮤᮊ ᮏᮩᮀ ᮘᮧᮌ ᮙᮁᮒᮘᮒ᮪ ᮊᮒᮥᮒ᮪ ᮠᮊ᮪-ᮠᮊ᮪ ᮃᮔᮥ ᮞᮛᮥᮃ. ᮙᮛᮔᮦᮂᮔ ᮓᮤᮘᮦᮛᮦ ᮃᮊᮜ᮪ ᮏᮩᮀ ᮠᮒᮦ ᮔᮥᮛᮔᮤ, ᮎᮙ᮪ᮕᮥᮁ-ᮌᮅᮜ᮪ ᮏᮩᮀ ᮞᮞᮙᮔ ᮃᮚ ᮓᮤᮔ ᮞᮥᮙᮍᮨᮒ᮪ ᮓᮥᮓᮥᮜᮥᮛᮔ᮪.
+        "Bawat tao'y isinilang na may layà at magkakapantáy ang tagláy na dangál at karapatán. Silá'y pinagkalooban ng pangangatwiran at budhî, at dapat magpálagayan ang isá't-isá sa diwà ng pagkákapatiran.", // Tagalog ᜊᜏᜆ᜔ ᜆᜂᜌ᜔ ᜁᜐᜒᜈᜒᜎᜅ᜔ ᜈ ᜋᜌ᜔ ᜎᜌ ᜀᜆ᜔ ᜋᜄ᜔ᜃᜃᜉᜈ᜔ᜆᜌ᜔ ᜀᜅ᜔ ᜆᜄ᜔ᜎᜌ᜔ ᜈ ᜇᜅᜎ᜔ ᜀᜆ᜔ ᜃᜇᜉᜆᜈ᜔᜶ ᜐᜒᜎᜌ᜔ ᜉᜒᜈᜄ᜔ᜃᜎᜓᜂᜊᜈ᜔ ᜈᜅ᜔ ᜃᜆ᜔ᜏᜒᜇᜈ᜔ ᜀᜆ᜔ ᜊᜓᜇᜑᜒ᜵ ᜀᜆ᜔ ᜇᜉᜆ᜔ ᜋᜄ᜔ᜉᜎᜄᜌᜈ᜔ ᜀᜅ᜔ ᜁᜐᜆ᜔ ᜁᜐ ᜐ ᜇᜒᜏ ᜈᜅ᜔ ᜉᜄ᜔ᜃᜃᜉᜆᜒᜇᜈ᜔᜶
+        "An gabos na tawo ipinangaking may katalinkasan asin parantay sa dignidad asin derechos. Sinda gabos tinawan nin pag-isip asin conciencia kaya dapat na makipag-iriba sa lambang saro bilang mga magturugang.", // Bikol
+        "Teraka afaka sy mitovy zo sy fahamendrehana ny olombelona rehetra. Samy manan-tsaina sy fieritreretana ka tokony hifampitondra am- pirahalahiana.", // Malagasy
+        "Semua manusia dilahirkan bebas dan sama rata dari segi maruah dan hak-hak. Mereka mempunyai pemikiran dan perasaan hati dan hendaklah bertindak di antara satu sama lain dengan semangat persaudaraan.", // Malay
+        "Ang tanang katawhan gipakatawo nga may kagawasan ug managsama sa kabililhon. Sila gigasahan sa salabutan ug tanlag og mag-ilhanay isip managsoon sa usa'g-usa diha sa diwa sa ospiritu.", // Cebuano
+        "Sâdhâjâna orèng lahèr mardhika èsarengè dhrâjhât klabân ha'-ha' sè padâ. Sâdhâjâna èparèngè akal sareng nurani bân kodhu areng-sareng akanca kadhi tarètan.", // Madurese
+        "Amin nga tao nga sibibiag ket naiyanak a siwawayawaya ken addaan iti agpapada nga dayaw ken kalintegan. Naikkanda ti panagikalintegan ken konsensya a nasken ti panagtitinnulong iti meysa ken meysa iti espiritu nga nainkak-absatan.", // Ilocano
+        "Ang tanán nga táwo ginbún-ag nga hílway kag may pag-alalangay sa dungóg kag kinamatárong. Silá ginhatágan sing pagpamat-ud kag balatyágon kag nagakadápat nga magbinuligáy sa kahulugan sang pag-inuturáy.", // Hiligaynon
+        "Sadonyo urang lahia mardeka jo punyo martabaik jo hak-hak nan samo. Nyo diagiah aka jo hati nurani sarato handaknyo babaua samo nan lainnyo dalam samangaik badunsanak." // Minangkabau
+      ];
+
+      let sampleIndex = 0;
+
+      function loadSample() {
+        inputArea.value = SAMPLES[sampleIndex];
+        sampleIndex = (sampleIndex + 1) % SAMPLES.length;
+        transcribe();
+      }
+
+      // Kawi Independent Vowels (Svara)
+      const independentVowels = new Map([
+        ['a', '𑼄'], ['ā', '𑼅'], ['i', '𑼆'], ['ī', '𑼇'], ['u', '𑼈'], ['ū', '𑼉'], ['e', '𑼎'], ['ai', '𑼏'], ['o', '𑼐'], ['au', '𑼐𑼴'], ['r̥', '𑼊'], ['r̥̄', '𑼋'], ['l̥', '𑼌'], ['l̥̄', '𑼍']
+      ]);
+
+      let vowelMappings = new Map();
+
+      function updateMappings() {
+        vowelMappings.clear(); // Wipe the Map safely
+        const optPepet = CONFIGOPTIONS.pepet.states[CONFIGOPTIONS.pepet.index];
+
+        const vowelGroups = [
+          { keys: ['a'], val: '' },
+          { keys: ['ā', 'aa'], val: '𑼴' },
+          { keys: ['i'], val: '𑼶' },
+          { keys: ['ī', 'ii'], val: '𑼷' },
+          { keys: ['u'], val: '𑼸' },
+          { keys: ['ū', 'uu'], val: '𑼹' },
+          { keys: ['e', 'é', 'è'], val: '𑼾' },
+          { keys: ['ai'], val: '𑼿' },
+          { keys: ['o'], val: '𑼾𑼴' },
+          { keys: ['au'], val: '𑼿𑼴' },
+          { keys: ['ě', 'ĕ', 'ë', 'ə'], val: optPepet === 'classic' ? '𑽀' : '' },
+          { keys: ['ěě', 'ĕĕ', 'ö', 'əə'], val: '𑽀𑼴' },
+          { keys: ['r̥', 'ṛ'], val: '𑼺' },
+          { keys: ['r̥̄', 'r̥r̥', 'ṛṛ'], val: '𑼺𑼴' },
+        ];
+
+        for (const group of vowelGroups) {
+          for (const k of group.keys) {
+            vowelMappings.set(k, group.val);
+          }
+        }
+      }
+
+      updateMappings();
+
+      const consonantMappings = new Map([
+        // ['ka', '𑼒'], ['ga', '𑼔'], ['nga', '𑼖'], ['ca', '𑼗'], ['ja', '𑼙'], ['nya', '𑼛'], ['ta', '𑼡'], ['da', '𑼣'], ['na', '𑼥'], ['pa', '𑼦'], ['ba', '𑼨'], ['ma', '𑼪'], ['ya', '𑼫'], ['ra', '𑼬'], ['la', '𑼭'], ['wa', '𑼮'], ['sa', '𑼱'], ['śa', '𑼯'], ['ṣa', '𑼰'], ['ha', '𑼲']
+        ['ka', '𑼒'], ['kha', '𑼓'], ['ga', '𑼔'], ['gha', '𑼕'], ['ṅa', '𑼖'], ['ca', '𑼗'], ['cha', '𑼘'], ['ja', '𑼙'], ['jha', '𑼚'], ['ña', '𑼛'], ['ṭa', '𑼜'], ['ṭha', '𑼝'], ['ḍa', '𑼞'], ['ḍha', '𑼟'], ['ṇa', '𑼠'], ['ta', '𑼡'], ['tha', '𑼢'], ['da', '𑼣'], ['dha', '𑼤'], ['na', '𑼥'], ['pa', '𑼦'], ['pha', '𑼧'], ['ba', '𑼨'], ['bha', '𑼩'], ['ma', '𑼪'], ['ya', '𑼫'], ['ra', '𑼬'], ['la', '𑼭'], ['va', '𑼮'], ['śa', '𑼯'], ['ṣa', '𑼰'], ['sa', '𑼱'], ['ha', '𑼲'], ['jña', '𑼳']
+      ]);
+
+      const standardConsonants = new Map([
+        // ['ng', 'nga'], ['ny', 'nya'], ['k', 'ka'], ['g', 'ga'], ['c', 'ca'], ['j', 'ja'], ['t', 'ta'], ['d', 'da'], ['n', 'na'], ['p', 'pa'], ['b', 'ba'], ['m', 'ma'], ['y', 'ya'], ['r', 'ra'], ['l', 'la'], ['w', 'wa'], ['v', 'wa'], ['s', 'sa'], ['h', 'ha'], ['ś', 'śa']
+        ['k', 'ka'], ['kh', 'kha'], ['g', 'ga'], ['gh', 'gha'], ['ṅ', 'ṅa'], ['ng', 'ṅa'], ['ŋ', 'ṅa'], ['c', 'ca'], ['ch', 'cha'], ['j', 'ja'], ['jh', 'jha'], ['ñ', 'ña'], ['ny', 'ña'], ['ṭ', 'ṭa'], ['ṭh', 'ṭha'], ['ḍ', 'ḍa'], ['ḍh', 'ḍha'], ['ṇ', 'ṇa'], ['t', 'ta'], ['th', 'tha'], ['d', 'da'], ['dh', 'dha'], ['n', 'na'], ['p', 'pa'], ['ph', 'pha'], ['b', 'ba'], ['bh', 'bha'], ['m', 'ma'], ['y', 'ya'], ['r', 'ra'], ['l', 'la'], ['v', 'va'], ['w', 'va'], ['ś', 'śa'], ['ṣ', 'ṣa'], ['s', 'sa'], ['h', 'ha'], ['jñ', 'jña'], ['jny', 'jña'], ['gy', 'jña']
+      ]);
+
+      const virama = '𑽂';
+
+      // Optimized transcription call
+      function transcribe() {
+        outputArea.value = austroToKawi(inputArea.value);
+      }
+
+      function austroToKawi(inputText) {
+        const textLower = inputText.toLowerCase();
+        let result = '';
+        let i = 0;
+
+        while (i < textLower.length) {
+          let char = textLower[i];
+
+          if ('\'-;'.includes(char)) {
+            result += '';
+            i++;
+            continue;
+          } else if (' '.includes(char)) {
+            result += '𑽉';
+            i++;
+            continue;
+          } else if ('\t'.includes(char)) {
+            result += '𑽅';
+            i++;
+            continue;
+          } else if ('.'.includes(char)) {
+            result += '𑽄';
+            i++;
+            continue;
+          } else if (':'.includes(char)) {
+            result += '𑽊';
+            i++;
+            continue;
+          } else if (','.includes(char)) {
+            result += '𑽃';
+            i++;
+            continue;
+          }
+
+          let matched = false;
+          let matchedLength = 1;
+
+          // Check for Consonant + Vowel sequences
+          for (const cLen of [2, 1]) {
+            if (i + cLen > textLower.length) continue;
+            let modernCons = textLower.slice(i, i + cLen);
+
+            if (standardConsonants.has(modernCons)) {
+              let kawiBase = standardConsonants.get(modernCons);
+              let kawiGlyph = consonantMappings.get(kawiBase);
+
+              for (const vLen of [2, 1]) {
+                if (i + cLen + vLen > textLower.length) continue;
+                let vowelSub = textLower.slice(i + cLen, i + cLen + vLen);
+
+                if (vowelMappings.has(vowelSub)) {
+                  result += kawiGlyph + vowelMappings.get(vowelSub);
+                  matchedLength = cLen + vLen;
+                  matched = true;
+                  break;
+                }
+              }
+
+              if (!matched) {
+                result += kawiGlyph + virama;
+                matchedLength = cLen;
+                matched = true;
+              }
+            }
+            if (matched) break;
+          }
+
+          // Independent Vowel lookup
+          if (!matched) {
+            for (const vLen of [2, 1]) {
+              if (i + vLen > textLower.length) continue;
+              let vowelSub = textLower.slice(i, i + vLen);
+
+              if (independentVowels.has(vowelSub)) {
+                result += independentVowels.get(vowelSub);
+                matchedLength = vLen;
+                matched = true;
+                break;
+              }
+            }
+          }
+
+          if (!matched) {
+            result += inputText[i];
+          }
+
+          i += matchedLength;
+        }
+
+        return result;
+      }
+    </script>
+  </body>
+</html>
