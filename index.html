@@ -224,7 +224,13 @@ if ('\'-;'.includes(char)) {
 
 if (punctuationMap.has(char)) {
   result += punctuationMap.get(char);
-  i++;
+  
+  if (i + 1 < textLower.length && textLower[i + 1] === ' ') {
+    result += ' ';
+    i += 2;
+  } else {
+    i++;
+  }
   continue;
 }
 
@@ -236,10 +242,37 @@ if (punctuationMap.has(char)) {
             let modernCons = textLower.slice(i, i + cLen);
 
             if (standardConsonants.has(modernCons)) {
-              let kawiBase = standardConsonants.get(modernCons);
-              let kawiGlyph = consonantMappings.get(kawiBase);
+  // --- CLASSICAL REPHA INTERCEPTION ---
+  // If the current matched consonant is 'r' and it's followed by another consonant...
+  if (modernCons === 'r') {
+    let nextIdx = i + cLen;
+    let nextConsLen = 0;
 
-              for (const vLen of [2, 1]) {
+    // Look ahead to see if a valid consonant follows the 'r'
+    for (const testLen of [2, 1]) {
+      if (nextIdx + testLen <= textLower.length) {
+        let subsequentCons = textLower.slice(nextIdx, nextIdx + testLen);
+        if (standardConsonants.has(subsequentCons)) {
+          nextConsLen = testLen;
+          break;
+        }
+      }
+    }
+
+    // If followed by a consonant, render the Kawi Repha character (𑼂) immediately,
+    // then advance the pointer to let the main loop process that next consonant normally!
+    if (nextConsLen > 0) {
+    result += '𑼂'; 
+    matchedLength = cLen; 
+    matched = true;
+    break; // Break the 'cLen' loop to fall down to the outer increment line: 'i += matchedLength;'
+  }
+}
+
+  let kawiBase = standardConsonants.get(modernCons);
+  let kawiGlyph = consonantMappings.get(kawiBase);
+
+  for (const vLen of [2, 1]) {
                 if (i + cLen + vLen > textLower.length) continue;
                 let vowelSub = textLower.slice(i + cLen, i + cLen + vLen);
 
@@ -257,7 +290,7 @@ if (punctuationMap.has(char)) {
   let nextIsConsonant = false;
 
   // Skip punctuation/spaces in our lookahead check to find the next actual character
-  while (nextIdx < textLower.length && '\'-; \t.:,'.includes(textLower[nextIdx])) {
+  while (nextIdx < textLower.length && ''.includes(textLower[nextIdx])) {
     nextIdx++;
   }
 
