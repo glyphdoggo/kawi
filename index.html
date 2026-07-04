@@ -83,7 +83,7 @@
       </div>
 
       <div class="buttons">
-        <input id="btn-opt-pepet" class="btn" type="button" value="Schwa (ě) → 𑼽" onclick="cycleOption('pepet')">
+        <input id="btn-opt-pepet" class="btn" type="button" value="⟨e⟩ → 𑼽" onclick="cycleOption('pepet')">
         <input id="sample-btn" class="btn" type="button" title="Load sample text" value="Sample text" onclick="loadSample()">
       </div>
     </div>
@@ -100,7 +100,7 @@
       const CONFIGOPTIONS = {
         pepet: {
           states: ['classic', 'phonetic'],
-          labels: ['Schwa (ě) → 𑼽 (Pepet)', 'Schwa (ě) → 𑼺 (Drop/Inherent)'],
+          labels: ['⟨e⟩ → /ə/', '⟨e⟩ → /ɛ/'],
           index: 0,
           element: document.getElementById("btn-opt-pepet")
         }
@@ -108,7 +108,7 @@
 
       const independentVowels = new Map([
         ['a', '𑼄'], ['ā', '𑼅'], ['aa', '𑼅'], ['i', '𑼆'], ['ī', '𑼇'], ['ii', '𑼇'], 
-        ['u', '𑼈'], ['ū', '𑼉'], ['uu', '𑼉'], ['e', '𑼎'], ['ai', '𑼏'], ['o', '𑼐'], ['au', '𑼐𑼴']
+        ['u', '𑼈'], ['ū', '𑼉'], ['uu', '𑼉'], ['e', '𑼎'], ['è', '𑼎'], ['é', '𑼎'], ['ai', '𑼏'], ['o', '𑼐'], ['au', '𑼐𑼴']
       ]);
 
       const consonantMappings = new Map([
@@ -147,17 +147,18 @@
         const optPepet = CONFIGOPTIONS.pepet.states[CONFIGOPTIONS.pepet.index];
 
         const vowelGroups = [
-          { keys: ['a'], val: '' },
+          { keys: ['a', 'á', 'à', 'å', 'â'], val: '' },
           { keys: ['ā', 'aa'], val: '𑼴' },
           { keys: ['i'], val: '𑼶' },
           { keys: ['ī', 'ii'], val: '𑼷' },
           { keys: ['u'], val: '𑼸' },
           { keys: ['ū', 'uu'], val: '𑼹' },
-          { keys: ['e', 'é', 'è'], val: '𑼾' },
+          { keys: ['é', 'è'], val: '𑼾' },
+          { keys: ['e'], val: optPepet === 'classic' ? '𑽀' : '' },
           { keys: ['ai'], val: '𑼿' },
           { keys: ['o'], val: '𑼾𑼴' },
           { keys: ['au'], val: '𑼿𑼴' },
-          { keys: ['ě', 'ĕ', 'ë', 'ê', 'ə'], val: optPepet === 'classic' ? '𑽀' : '' },
+          { keys: ['ě', 'ĕ', 'ë', 'ê', 'ə'], val: '𑽀'},
           { keys: ['ěě', 'ĕĕ', 'ö', 'êê', 'əə'], val: '𑽀𑼴' }
         ];
 
