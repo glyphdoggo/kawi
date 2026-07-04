@@ -50,6 +50,7 @@
         margin-top: 30px;
       }
       .btn {
+        font-family: "Noto Sans", "Noto Sans Kawi", sans-serif;
         padding-inline: 12px;
         padding-block: 6px;
         background: #005266;
@@ -83,7 +84,7 @@
       </div>
 
       <div class="buttons">
-        <input id="btn-opt-pepet" class="btn" type="button" value="⟨e⟩ → /ə/" onclick="cycleOption('pepet')">
+        <input id="btn-opt-pepet" class="btn" type="button" value="⟨me⟩ → 𑼪𑽀" onclick="cycleOption('pepet')">
         <input id="sample-btn" class="btn" type="button" title="Load sample text" value="Sample text" onclick="loadSample()">
       </div>
     </div>
@@ -154,7 +155,7 @@
           { keys: ['u'], val: '𑼸' },
           { keys: ['ū', 'uu'], val: '𑼹' },
           { keys: ['é', 'è'], val: '𑼾' },
-          { keys: ['e'], val: optPepet === 'classic' ? '𑽀' : '' },
+          { keys: ['e'], val: optPepet === 'classic' ? '𑽀' : '𑼾' },
           { keys: ['ai'], val: '𑼿' },
           { keys: ['o'], val: '𑼾𑼴' },
           { keys: ['au'], val: '𑼿𑼴' },
@@ -293,7 +294,7 @@
                 let nextConsLen = 0;
 
                 // Skip over internal cluster-breakers for Lookahead 1
-                while (nextIdx < textLower.length && '\'-;'.includes(textLower[nextIdx])) {
+                while (nextIdx < textLower.length && ''.includes(textLower[nextIdx])) {
                   nextIdx++;
                 }
 
@@ -314,7 +315,7 @@
                 // Lookahead 2: Check for Consonant 3
                 if (nextIsConsonant) {
                   let thirdIdx = nextIdx + nextConsLen;
-                  while (thirdIdx < textLower.length && '\'-;'.includes(textLower[thirdIdx])) {
+                  while (thirdIdx < textLower.length && ''.includes(textLower[thirdIdx])) {
                     thirdIdx++;
                   }
                   if (thirdIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[thirdIdx])) {
@@ -330,7 +331,7 @@
                     // Lookahead 3: Check for Consonant 4 (crucial for balancing pairs)
                     if (thirdIsConsonant) {
                       let fourthIdx = thirdIdx + thirdConsLen;
-                      while (fourthIdx < textLower.length && '\'-;'.includes(textLower[fourthIdx])) {
+                      while (fourthIdx < textLower.length && ''.includes(textLower[fourthIdx])) {
                         fourthIdx++;
                       }
                       if (fourthIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[fourthIdx])) {
