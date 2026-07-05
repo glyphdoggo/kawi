@@ -85,7 +85,7 @@
       </div>
 
       <div class="buttons">
-        <input id="btn-opt-pepet" class="btn" type="button" value="me → 𑼪𑽀" onclick="cycleOption('pepet')">
+        <input id="btn-opt-pepet" class="btn" type="button" value="e → 𑽀" onclick="cycleOption('pepet')">
         <input id="sample-btn" class="btn" type="button" title="Load sample text" value="Sample text" onclick="loadSample()">
       </div>
     </div>
@@ -102,14 +102,14 @@
       const CONFIGOPTIONS = {
         pepet: {
           states: ['classic', 'phonetic'],
-          labels: ['me → 𑼪𑽀', 'me → 𑼪𑼾'],
+          labels: ['e → 𑽀', 'e → 𑼾'],
           index: 0,
           element: document.getElementById("btn-opt-pepet")
         }
       };
 
       const independentVowels = new Map([
-        ['a', '𑼄'], ['ā', '𑼅'], ['aa', '𑼅'], ['i', '𑼆'], ['ī', '𑼇'], ['ii', '𑼇'], 
+        ['a', '𑼄'], ['ā', '𑼅'], ['aa', '𑼅'], ['i', '𑼆'], ['ī', '𑼇'], ['ii', '𑼇'], ['eu', '𑼲𑽀'],
         ['u', '𑼈'], ['ū', '𑼉'], ['uu', '𑼉'], ['e', '𑼎'], ['è', '𑼎'], ['é', '𑼎'], ['ai', '𑼏'], ['o', '𑼐'], ['au', '𑼐𑼴']
       ]);
 
@@ -163,7 +163,7 @@
           { keys: ['ai'], val: '𑼿' },
           { keys: ['o'], val: '𑼾𑼴' },
           { keys: ['au'], val: '𑼿𑼴' },
-          { keys: ['ě', 'ĕ', 'ë', 'ê', 'ə'], val: '𑽀'},
+          { keys: ['ě', 'ĕ', 'ë', 'ê', 'ə', 'eu'], val: '𑽀'},
           { keys: ['ěě', 'ĕĕ', 'ö', 'êê', 'əə'], val: '𑽀𑼴' }
         ];
 
