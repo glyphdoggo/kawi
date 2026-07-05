@@ -212,17 +212,40 @@
         let i = 0;
 
         while (i < textLower.length) {
+          // --- CODA DIACRITIC EVALUATION ---
           let codaMatched = false;
           for (const cLen of [2, 1]) {
             if (i + cLen <= textLower.length) {
               let potentialCoda = textLower.slice(i, i + cLen);
               if (codas.has(potentialCoda)) {
-                let nextChar = textLower[i + cLen];
-                if (!nextChar || ' \n\t.,;:-\''.includes(nextChar)) {
+                let nextIdx = i + cLen;
+                
+                // Skip over cluster-breakers to find the true next character
+                while (nextIdx < textLower.length && '\'-;'.includes(textLower[nextIdx])) {
+                  nextIdx++;
+                }
+
+                let nextChar = textLower[nextIdx];
+                let isWordBoundary = !nextChar || ' \n\r\t.,𑽉𑽅𑽄𑽊𑽃'.includes(nextChar);
+                
+                // Lookahead: check if the next string block forms a new consonant syllable
+                let nextIsConsonant = false;
+                if (!isWordBoundary) {
+                  for (const testLen of [2, 1]) {
+                    if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
+                      nextIsConsonant = true;
+                      break;
+                    }
+                  }
+                }
+
+                // JAVANESE LOGIC: "ng" or "h" is a coda if it hits a word boundary 
+                // OR if it is immediately followed by another consonant (syllable-final)
+                if (isWordBoundary || nextIsConsonant) {
                   let lastChar = result.slice(-1);
                   if (result.length > 0 && !'𑽉𑽅𑽄𑽊𑽃 '.includes(lastChar)) {
                     result += codas.get(potentialCoda);
-                    i += cLen;
+                    i = nextIdx; // Advance past the coda and any bypassed cluster-breakers
                     codaMatched = true;
                     break;
                   }
@@ -231,7 +254,7 @@
             }
           }
           if (codaMatched) continue;
-          
+
           let char = textLower[i];
           
           if (punctuationMap.has(char)) {
