@@ -1,0 +1,59 @@
+      html, body {
+        margin: 0;
+        background-color: #003341;
+        color: #fed;
+        height: 100%;
+        font-family: "Noto Sans", sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+      }
+      textarea {
+        font-family: "Noto Sans", "Noto Sans Kawi", sans-serif;
+        background-color: #fed;
+        color: #003341;
+        width: 100%;
+        padding: 20px;
+        line-height: 1.25;
+        border-radius: 10px;
+        border: none;
+        box-sizing: border-box;
+        resize: vertical;
+        max-width: 70%;
+      }
+      #output {
+        line-height: 2;
+      }
+      .interface {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+      .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 30px;
+      }
+      .btn {
+        font-family: "Noto Sans", "Noto Sans Kawi", sans-serif;
+        padding: 12px;
+        padding-block: 0px;                
+        background: #005266;
+        color: #fed;
+        border: 2px solid #fed;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      #btn-opt-pepet {
+        padding-block-start: 6px;
+        min-width: 80px;
+      }
+      .btn:active {
+        background: #003341;
+        transform: scale(0.97);
+      }
+      h3 { font-size: 22px }
+      h4 { opacity: .5; font-weight: 400; font-style: italic }

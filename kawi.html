@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Austronesian Kawi Transcriber</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An easy-to-use tool for transcribing modern Austronesian languages into the Kawi script.">
+    <meta name="author" content="Daniel Saeger">
+    <link rel="stylesheet" href="kawi.css">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Kawi&display=swap');
+    </style>
+  </head>
+  <body>
+    <div class="interface">
+      <div>
+        <h3>MODERN KAWI TRANSCRIBER</h3>
+        <h4>A Kawi orthography for
+        <!-- Western -->
+        Malayo-Polynesian languages</h4>
+      </div>
+      <div>
+        <textarea rows="5" id="input" placeholder="Type here :)" oninput="transcribe()"></textarea>
+      </div>
+      <div>
+        <textarea rows="5" id="output" readonly></textarea>
+      </div>
+      <div class="buttons">
+        <input id="btn-opt-pepet" class="btn" type="button" value="e → 𑽀◌" onclick="cycleOption('pepet')">
+        <input id="sample-btn" class="btn" type="button" title="Load sample text" value="Sample text" onclick="loadSample()">
+      </div>
+    </div>
+    <script src="kawi.js" type="text/javascript">
+    </script>
+  </body>
+</html>
