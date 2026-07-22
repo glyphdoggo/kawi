@@ -6,9 +6,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="An easy-to-use tool for transcribing various Western Malayo-Polynesian languages into the Kawi script.">
     <meta name="author" content="Daniel Saeger">
-    <link rel="stylesheet" href="kawi.css">
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Kawi&display=swap');
+  @font-face {
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Noto Sans Regular'), local('NotoSans-Regular'),
+         url('NotoSans-Regular.ttf') format('truetype'),
+         url('https://fonts.gstatic.com/s/notosans/v38/o-0eIpHfvRCSob33n9GSMTzaAL8.woff2') format('woff2');
+  }
+
+  @font-face {
+    font-family: 'Noto Sans';
+    font-style: italic;
+    font-weight: 400;
+    src: local('Noto Sans Italic'), local('NotoSans-Italic'),
+         url('NotoSans-Italic.ttf') format('truetype'),
+         url('https://fonts.gstatic.com/s/notosans/v38/o-0gIpHfvRCSob33n9GS830.woff2') format('woff2');
+  }
+
+  @font-face {
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Noto Sans Bold'), local('NotoSans-Bold'),
+         url('NotoSans-Bold.ttf') format('truetype'),
+         url('https://fonts.gstatic.com/s/notosans/v38/o-0NIpHfvRCSob33n9GSVMY.woff2') format('woff2');
+  }
+
+  @font-face {
+    font-family: 'Noto Sans';
+    font-style: italic;
+    font-weight: 700;
+    src: local('Noto Sans Bold Italic'), local('NotoSans-BoldItalic'),
+         url('NotoSans-BoldItalic.ttf') format('truetype'),
+         url('https://fonts.gstatic.com/s/notosans/v38/o-0TIpHfvRCSob33n9GS87-58A.woff2') format('woff2');
+  }
+
+  @font-face {
+    font-family: 'Noto Sans Kawi';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Noto Sans Kawi'), local('NotoSansKawi-Regular'),
+         url('NotoSansKawi-Regular.ttf') format('truetype'),
+         url('https://fonts.gstatic.com/s/notosanskawi/v1/memvYa4up_PsoB63x4J15jMv.woff2') format('woff2');
+  }
+
+  html, body {
+        margin: 0;
+        background-color: #005266;
+        color: #fed;
+        height: 100%;
+        font-family: "Noto Sans", sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+      }
+      textarea {
+        font-family: "Noto Sans", "Noto Sans Kawi", sans-serif;
+        background-color: #fed;
+        color: #005266;
+        width: 100%;
+        padding: 20px;
+        line-height: 1.25;
+        border-radius: 10px;
+        border: none;
+        box-sizing: border-box;
+        resize: vertical;
+        max-width: 70%;
+      }
+      #output {
+        line-height: 2;
+      }
+      .interface {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+      .buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px; /* Adjust vertical spacing between the two rows */
+        margin-top: 30px;
+      }
+      .btn-row {
+        display: flex;
+        justify-content: center;
+        gap: 20px; /* Adjust horizontal spacing between buttons */
+      }
+      .btn {
+        font-family: "Noto Sans", "Noto Sans Kawi", sans-serif;
+        padding: 12px;
+        padding-block: 0px;
+        background: #00748e;
+        color: #fed;
+        border: 2px solid #fed;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        /*max-height: 40px;*/
+      }
+      #btn-opt-pepet, #btn-opt-repha, #btn-opt-diphthong, #btn-opt-spacing {
+        padding-block-start: 8px;
+        /*min-width: 90px;*/
+      }
+      #sample-btn {
+        padding-block: 8px;
+        /*min-width: 120px;*/
+      }
+      .btn:active {
+        background: #005266;
+        transform: scale(0.97);
+      }
+      h3 { font-size: 22px }
+      h4 { opacity: .5; font-weight: 400; font-style: italic }
     </style>
   </head>
   <body>
@@ -21,14 +134,554 @@
         <textarea rows="5" id="input" placeholder="Type here :)" oninput="transcribe()"></textarea>
       </div>
       <div>
-        <textarea rows="5" id="output" readonly></textarea>
+        <textarea rows="3" id="output" readonly></textarea>
       </div>
       <div class="buttons">
-        <input id="btn-opt-pepet" class="btn" type="button" value="e → 𑽀◌" onclick="cycleOption('pepet')">
-        <input id="sample-btn" class="btn" type="button" title="Load sample text" value="Sample text" onclick="loadSample()">
+        <div class="btn-row">
+          <input id="btn-opt-pepet" class="btn" type="button" value="ke → 𑼒𑽀" onclick="cycleOption('pepet')">
+          <input id="btn-opt-repha" class="btn" type="button" value="rka → 𑼂𑼒" onclick="cycleOption('repha')">
+          <input id="btn-opt-diphthong" class="btn" type="button" value="kai → 𑼒𑼿" onclick="cycleOption('diphthongMode')">
+        </div>
+        <div class="btn-row">
+          <input id="btn-opt-spacing" class="btn" type="button" value="lan ka → 𑼭𑼥𑽁 𑼒" onclick="cycleOption('spacing')">
+          <input id="sample-btn" class="btn" type="button" value="sample text" onclick="loadSample()">
+        </div>
       </div>
     </div>
-    <script src="kawi.js" type="text/javascript">
+    <script>
+      const inputArea = document.getElementById("input");
+      const outputArea = document.getElementById("output");
+
+      const codas = new Map([
+        ['ng', '𑼁'],
+        ['h', '𑼃'],
+        // ['m', '𑼀']
+      ]);
+      
+      const CONFIGOPTIONS = {
+        pepet: {
+          states: ['classic', 'phonetic'],
+          labels: ['ke → 𑼒𑽀', 'ke → 𑼒𑼾'],
+          index: 0,
+          element: document.getElementById("btn-opt-pepet")
+        },
+        spacing: {
+          states: ['spaces', 'continua', 'fused'],
+          labels: ['lan ka → 𑼭𑼥𑽁 𑼒', 'lan ka → 𑼭𑼥𑽁𑼒', 'lan ka → 𑼭𑼥𑽂𑼒'],
+          index: 0,
+          element: document.getElementById("btn-opt-spacing")
+        },
+        repha: {
+          states: ['pre', 'post'],
+          labels: ['rka → 𑼂𑼒', 'kar → 𑼂𑼒'],
+          index: 0, // Defaults to traditional pre-consonant rka
+          element: document.getElementById("btn-opt-repha")
+        },
+        diphthongMode: {
+          states: ['diphthong', 'hiatus'],
+          labels: ['kai → 𑼒𑼿', 'kai → 𑼒𑼆'],
+          index: 0, // Defaults to Indonesian style diphthong
+          element: document.getElementById("btn-opt-diphthong") // Match this ID to your HTML button
+        },
+      };
+
+      const independentVowels = new Map([
+        ['a', '𑼄'], ['à', '𑼄'], ['á', '𑼄'], ['â', '𑼄'], ['å', '𑼄'], ['ā', '𑼅'], ['aa', '𑼅'],
+        ['i', '𑼆'], ['ì', '𑼆'], ['í', '𑼆'], ['î', '𑼆'], ['ï', '𑼆'], ['ī', '𑼇'], ['ii', '𑼇'],
+        ['u', '𑼈'], ['ù', '𑼈'], ['ú', '𑼈'], ['û', '𑼈'], ['ü', '𑼈'], ['ū', '𑼉'], ['uu', '𑼉'],
+        ['e', '𑼎'], ['è', '𑼎'], ['é', '𑼎'], ['ai', '𑼏'], ['ay', '𑼏'],
+        ['eu', '𑼲𑽀'], ['ě', '𑼲𑽀'], ['ĕ', '𑼲𑽀'], ['ë', '𑼲𑽀'], ['ë́', '𑼲𑽀'], ['ë̀', '𑼲𑽀'], ['ë̂', '𑼲𑽀'], ['ê', '𑼲𑽀'], ['ə', '𑼲𑽀'],
+        ['o', '𑼐'], ['ò', '𑼐'], ['ó', '𑼐'], ['ô', '𑼐'], ['au', '𑼐𑼴'], ['aw', '𑼐𑼴'],
+        ['ěě', '𑼲𑽀𑼴'], ['ĕĕ', '𑼲𑽀𑼴'], ['ö', '𑼲𑽀𑼴'], ['êê', '𑼲𑽀𑼴'], ['ëë', '𑼲𑽀𑼴'], ['əə', '𑼲𑽀𑼴']
+      ]);
+
+      const consonantMappings = new Map([
+        ['ka', '𑼒'], ['kha', '𑼓'], ['ga', '𑼔'], ['gha', '𑼕'], ['ṅa', '𑼖'], ['ca', '𑼗'], 
+        ['cha', '𑼘'], ['ja', '𑼙'], ['jha', '𑼚'], ['ña', '𑼛'], ['ṭa', '𑼜'], ['ṭha', '𑼝'], 
+        ['ḍa', '𑼞'], ['ḍha', '𑼟'], ['ṇa', '𑼠'], ['ta', '𑼡'], ['tha', '𑼢'], ['da', '𑼣'], 
+        ['dha', '𑼤'], ['na', '𑼥'], ['pa', '𑼦'], ['pha', '𑼧'], ['ba', '𑼨'], ['bha', '𑼩'], 
+        ['ma', '𑼪'], ['ya', '𑼫'], ['ra', '𑼬'], ['la', '𑼭'], ['va', '𑼮'], ['śa', '𑼯'], 
+        ['ṣa', '𑼰'], ['sa', '𑼱'], ['ha', '𑼲'], ['jña', '𑼳']
+      ]);
+
+      const standardConsonants = new Map([
+        ['k', 'ka'], ['kh', 'kha'], ['g', 'ga'], ['gh', 'gha'], ['ṅ', 'ṅa'], ['ng', 'ṅa'], 
+        ['ŋ', 'ṅa'], ['c', 'ca'], ['ch', 'cha'], ['j', 'ja'], ['jh', 'jha'], ['ñ', 'ña'], 
+        ['ny', 'ña'], ['ṭ', 'ṭa'], ['ṭh', 'ṭha'], ['ḍ', 'ḍa'], ['ḍh', 'ḍha'], ['ṇ', 'ṇa'], 
+        ['t', 'ta'], ['th', 'tha'], ['d', 'da'], ['dh', 'dha'], ['n', 'na'], ['p', 'pa'], 
+        ['ph', 'pha'], ['b', 'ba'], ['bh', 'bha'], ['m', 'ma'], ['y', 'ya'], ['r', 'ra'], 
+        ['l', 'la'], ['v', 'va'], ['w', 'va'], ['ś', 'śa'], ['sy', 'śa'], ['sh', 'śa'],
+        ['s', 'sa'], ['h', 'ha'], ['jñ', 'jña'], ['jny', 'jña'], ['gy', 'jña'],
+        ['f', 'pha'], ['ṣ', 'ṣa'], ['ŝ', 'ṣa'], ['š', 'ṣa'], ['ş', 'ṣa'], ['ts', 'ca'],
+      ]);
+
+      const punctuationMap = new Map([
+        ['\'', ''],
+        // ['-', '𑽉'],
+        ['-', ''],
+        ['\t', '𑽅'],
+        ['.', '𑽄'],
+        ['\"', '𑽊'],
+        [',', '𑽃'],
+        ['(', '𑽃'],
+        [')', '𑽃'],
+        [':', '𑽋'],
+        [';', '𑽋'],
+      ]);
+
+      let vowelMappings = new Map();
+
+      function updateMappings() {
+        vowelMappings.clear();
+        const optPepet = CONFIGOPTIONS.pepet.states[CONFIGOPTIONS.pepet.index];
+
+        const vowelGroups = [
+          { keys: ['a', 'á', 'à', 'â', 'å'], val: '' },
+          { keys: ['ā', 'aa'], val: '𑼴' },
+          { keys: ['i', 'í', 'ì', 'î', 'ï'], val: '𑼶' },
+          { keys: ['ī', 'ii'], val: '𑼷' },
+          { keys: ['u', 'ú', 'ù', 'û', 'ü'], val: '𑼸' },
+          { keys: ['ū', 'uu'], val: '𑼹' },
+          { keys: ['é', 'è'], val: '𑼾' },
+          { keys: ['e'], val: optPepet === 'classic' ? '𑽀' : '𑼾' },
+          { keys: ['ai', 'ay'], val: '𑼿' },
+          { keys: ['o', 'ó', 'ò', 'ô'], val: '𑼾𑼴' },
+          { keys: ['au', 'aw'], val: '𑼿𑼴' },
+          { keys: ['ě', 'ĕ', 'ë', 'ë́', 'ë̀', 'ë̂', 'ê', 'ə', 'eu'], val: '𑽀'},
+          { keys: ['ěě', 'ĕĕ', 'ö', 'êê', 'əə'], val: '𑽀𑼴' }
+        ];
+
+        for (const group of vowelGroups) {
+          for (const k of group.keys) {
+            vowelMappings.set(k, group.val);
+          }
+        }
+      }
+
+      function cycleOption(key) {
+        const opt = CONFIGOPTIONS[key];
+        opt.index = (opt.index + 1) % opt.states.length;
+        opt.element.value = opt.labels[opt.index];
+        updateMappings();
+        transcribe();
+      }
+
+      updateMappings();
+
+      const SAMPLES = [
+        "Semua orang dilahirkan merdeka dan mempunyai martabat dan hak-hak yang sama. Mereka dikaruniai akal dan hati nurani dan hendaknya bergaul satu sama lain dalam semangat persaudaraan.\n<(Indonesian)>",
+        "Sabên uwong kalairaké kanthi mardikå lan darbé martabat lan hak-hak kang pådhå. Kabèh pinaringan akal lan kalbu sartå kaajab pasrawungan anggoné mêmitran siji lan sijiné kanthi jiwå sumadulur.\n<(Javanese)>",
+        "Sakumna jalma gubrag ka alam dunya téh sipatna merdika jeung boga martabat katut hak-hak anu sarua. Maranéhna dibéré akal jeung haté nurani, campur-gaul jeung sasamana aya dina sumanget duduluran.\n<(Sundanese)>",
+        "Bawat tao'y isinilang na may layà at magkakapantáy ang tagláy na dangál at karapatán. Silá'y pinagkalooban ng pangangatwiran at budhî, at dapat magpálagayan ang isá't-isá sa diwà ng pagkákapatiran.\n<(Tagalog)>",
+        "An gabos na tawo ipinangaking may katalinkasan asin parantay sa dignidad asin derechos. Sinda gabos tinawan nin pag-isip asin konsiensiya kaya dapat na makipag-iriba sa lambang saro bilang mga magturugang.\n<(Bikol)>",
+        "Semua manusia dilahirkan bebas dan sama rata dari segi maruah dan hak-hak. Mereka mempunyai pemikiran dan perasaan hati dan hendaklah bertindak di antara satu sama lain dengan semangat persaudaraan.\n<(Malay)>",
+        "Ang tanang katawhan gipakatawo nga may kagawasan ug managsama sa kabililhon. Sila gigasahan sa salabutan ug tanlag og mag-ilhanay isip managsoon sa usa'g-usa diha sa diwa sa ospiritu.\n<(Cebuano)>",
+        "Sâdhâjâna orèng lahèr mardhika èsarengè dhrâjhât klabân ha'-ha' sè padâ. Sâdhâjâna èparèngè akal sareng nurani bân kodhu areng-sareng akanca kadhi tarètan.\n<(Madurese)>",
+        "Amin nga tao nga sibibiag ket naiyanak a siwawayawaya ken addaan iti agpapada nga dayaw ken kalintegan. Naikkanda ti panagikalintegan ken konsensya a nasken ti panagtitinnulong iti meysa ken meysa iti espiritu nga nainkak-absatan.\n<(Ilocano)>",
+        "Ang tanán nga táwo ginbún-ag nga hílway kag may pag-alalangay sa dungóg kag kinamatárong. Silá ginhatágan sing pagpamat-ud kag balatyágon kag nagakadápat nga magbinuligáy sa kahulugan sang pag-inuturáy.\n<(Hiligaynon)>",
+        "Sadonyo urang lahia mardeka jo punyo martabaik jo hak-hak nan samo. Nyo diagiah aka jo hati nurani sarato handaknyo babaua samo nan lainnyo dalam samangaik badunsanak.\n<(Minangkabau)>",
+        "Sami manusane sane nyruwadi wantah merdeka tur maduwe kautamaan lan hak-hak sane pateh. Sami kalugrain papineh lan idep tur mangdane pada masawitra melarapan semangat pakulawargaan.\n<(Balinese)>"
+      ];
+
+      let sampleIndex = 0;
+      function loadSample() {
+        inputArea.value = SAMPLES[sampleIndex];
+        sampleIndex = (sampleIndex + 1) % SAMPLES.length;
+        transcribe();
+      }
+
+      function transcribe() {
+        outputArea.value = austroToKawi(inputArea.value);
+      }
+
+      function austroToKawi(inputText) {
+        if (CONFIGOPTIONS.spacing.states[CONFIGOPTIONS.spacing.index] === 'fused') {
+          inputText = inputText.replace(/[ \'-]/g, '\u200B');
+        }
+
+        const textLower = inputText.toLowerCase();
+        let result = '';
+        let i = 0;
+
+        while (i < textLower.length) {
+          let char = textLower[i];
+
+          // --- ABSOLUTE ESCAPE HATCH (PASS-THROUGH TAGS) ---
+          if (char === '<') {
+            let closeIdx = inputText.indexOf('>', i);
+            if (closeIdx !== -1) {
+              let rawText = inputText.slice(i + 1, closeIdx);
+              result += rawText;
+              i = closeIdx + 1;
+              continue;
+            }
+          }
+          
+          // --- FORCE EXPLICIT N (BYPASS NG/NC DIGRAPHS) ---
+          if (textLower[i] === 'n' && i + 1 < textLower.length && textLower[i + 1] === '\'') {
+            // Check if followed by g, c, or j
+            if (i + 2 < textLower.length && 'gcj'.includes(textLower[i + 2])) {
+              let kawiGlyph = consonantMappings.get('na');
+              let nextIdx = i + 2; // Jump past 'n' and '\''
+              
+              // Look ahead to check if the next consonant should stack or take a vowel
+              let nextIsConsonant = true;
+              let insideOpenStack = result.endsWith('𑽂');
+
+              if (!insideOpenStack) {
+                result += kawiGlyph + '𑽂';
+              } else {
+                result += kawiGlyph + '𑽁';
+              }
+              i = nextIdx; // Move index directly to 'g'
+              continue;
+            }
+          }
+
+          // Check for isolated word abbreviations
+          if (i === 0 || ' \n\r\t.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[i - 1])) {
+            // Check for "ng"
+            if (textLower.slice(i, i + 2) === 'ng' && (i + 2 === textLower.length || ' \n\r\t.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[i + 2]))) {
+              // Intercept and redirect parsing to "nang"
+              result += austroToKawi("nang "); // or handle the glyphs directly
+              i += 2;
+              continue;
+            }
+            // Check for "mga"
+            if (textLower.slice(i, i + 3) === 'mga' && (i + 3 === textLower.length || ' \n\r\t.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[i + 3]))) {
+              result += austroToKawi("manga ");
+              i += 3;
+              continue;
+            }
+          }
+
+          // --- CODA DIACRITIC EVALUATION ---
+          let codaMatched = false;
+          for (const cLen of [2, 1]) {
+            if (i + cLen <= textLower.length) {
+              let potentialCoda = textLower.slice(i, i + cLen);
+              if (codas.has(potentialCoda)) {
+                let nextIdx = i + cLen;
+                
+                while (nextIdx < textLower.length && '\u200B'.includes(textLower[nextIdx])) {
+                  nextIdx++;
+                }
+
+                let nextChar = textLower[nextIdx];
+                let isWordBoundary = !nextChar || ' \'-:;\n\r\t.,𑽉𑽅𑽄𑽊𑽃'.includes(nextChar) && nextChar !== '\u200B';
+
+                let nextIsConsonant = false;
+                if (!isWordBoundary) {
+                  for (const testLen of [2, 1]) {
+                    if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
+                      nextIsConsonant = true;
+                      break;
+                    }
+                  }
+                }
+
+                if (isWordBoundary || nextIsConsonant) {
+                  let lastChar = result.slice(-1);
+                  if (result.length > 0 && !'𑽉𑽅𑽄𑽊𑽃 '.includes(lastChar)) {
+                    result += codas.get(potentialCoda);
+                    i = nextIdx;
+                    codaMatched = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          if (codaMatched) continue;
+
+          char = textLower[i];
+          
+          if (punctuationMap.has(char)) {
+            result += punctuationMap.get(char);
+            if (i + 1 < textLower.length && textLower[i + 1] === ' ') {
+              result += ' ';
+              i += 2;
+            } else {
+              i++;
+            }
+            continue;
+          }
+          
+          if (char === ' ' || char === '\u200B') {
+            if (char === ' ') result += ' ';
+            i++;
+            continue;
+          }
+
+          let matched = false;
+          let matchedLength = 1;
+
+          for (const cLen of [2, 1]) {
+            if (i + cLen > textLower.length) continue;
+            let modernCons = textLower.slice(i, i + cLen);
+
+            if (standardConsonants.has(modernCons)) {
+              // --- REPHA TOGGLE LOGIC ---
+              if (modernCons === 'r') {
+                const rephaMode = CONFIGOPTIONS.repha.states[CONFIGOPTIONS.repha.index];
+
+                if (rephaMode === 'pre') {
+                  let nextIdx = i + cLen;
+                  // Skip over zero-width sandhi boundary markers if in fused mode
+                  while (nextIdx < textLower.length && textLower[nextIdx] === '\u200B') {
+                    nextIdx++;
+                  }
+
+                  let nextConsLen = 0;
+                  for (const testLen of [2, 1]) {
+                    if (nextIdx + testLen <= textLower.length) {
+                      let subsequentCons = textLower.slice(nextIdx, nextIdx + testLen);
+                      if (standardConsonants.has(subsequentCons)) {
+                        nextConsLen = testLen;
+                        break;
+                      }
+                    }
+                  }
+
+                  // ONLY trigger Repha if 'r' is followed by a consonant WITHIN the same syllable/word,
+                  // NOT across a sandhi boundary where the previous coda is waiting to stack!
+                  let crossedBoundary = (textLower.slice(i + cLen, nextIdx).includes('\u200B'));
+
+                  if (nextConsLen > 0 && !crossedBoundary) {
+                    result += '𑼂'; 
+                    matchedLength = cLen; 
+                    matched = true;
+                    break;
+                  }
+                    
+                } else if (rephaMode === 'post') {
+                  let nextIdx = i + cLen;
+                  let nextChar = textLower[nextIdx];
+                  let isBoundary = !nextChar || (' \n\r\t.,𑽉𑽅𑽄𑽊𑽃-\''.includes(nextChar) && nextChar !== '\u200B');
+                  
+                  // 1. If 'r' is a word-final coda (e.g., "mar"), output base 'ra' + virama (𑼬𑽁)
+                  if (isBoundary) {
+                    // Check if previous character exists and isn't a boundary
+                    if (result.length > 0 && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(result.slice(-1))) {
+                      result += '𑼬𑽁'; // ra + virama
+                      matchedLength = cLen;
+                      matched = true;
+                      break;
+                    }
+                  }
+
+                  // 2. If 'r' follows a consonant cluster (e.g. "kar" in a cluster context),
+                  // insert Repha BEFORE the entire preceding syllable/base consonant 
+                  // to keep Unicode canonical order: [Repha] + [Base] + [Vowels]
+                  let nextIsConsonant = false;
+                  for (const testLen of [2, 1]) {
+                    if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
+                      nextIsConsonant = true;
+                      break;
+                    }
+                  }
+
+                  if (nextIsConsonant && result.length > 0) {
+                    let insertIdx = result.length;
+
+                    // Step backwards past dependent vowels, subjoiners, and stacked consonants
+while (insertIdx > 0) {
+  let cpIdx = insertIdx - 2;
+  if (cpIdx < 0) cpIdx = 0;
+
+  let code = result.codePointAt(cpIdx);
+
+  // 1. Skip dependent vowels (0x11F36 - 0x11F42, 0x11F52)
+  if ((code >= 0x11F36 && code <= 0x11F42) || code === 0x11F52) {
+    insertIdx -= 2;
+  } 
+  // 2. Skip subjoining viramas / killers (𑽂 = 0x11F42, 𑽁 = 0x11F41)
+  else if (code === 0x11F42 || code === 0x11F41) {
+    insertIdx -= 2;
+  } 
+  // 3. Skip base/subjoined consonants so we keep walking up to the root head consonant
+  else if (code >= 0x11F12 && code <= 0x11F33) {
+    insertIdx -= 2;
+    // Check if the character directly before this consonant is a virama/subjoiner.
+    // If it is, keep looping backward to find the top head consonant!
+    let prevCp = insertIdx >= 2 ? result.codePointAt(insertIdx - 2) : 0;
+    if (prevCp !== 0x11F42 && prevCp !== 0x11F41) {
+      break; // Found the primary head consonant of the stack!
+    }
+  } else {
+    break;
+  }
+}
+
+if (insertIdx < 0) insertIdx = 0;
+
+// Place Repha in FRONT of the entire stack
+result = result.slice(0, insertIdx) + '𑼂' + result.slice(insertIdx);
+                    matchedLength = cLen;
+                    matched = true;
+                    break;
+                  }
+                }
+              }
+              
+              let kawiBase = standardConsonants.get(modernCons);
+
+              if (modernCons === 'n' && i + 1 < textLower.length) {
+                let nextCharRaw = textLower[i + 1];
+                if (nextCharRaw === 'c' || nextCharRaw === 'j') {
+                  kawiBase = 'ña';
+                }
+              }
+
+              let kawiGlyph = consonantMappings.get(kawiBase);
+
+              // Try to match a dependent vowel sign after the consonant
+              for (const vLen of [2, 1]) {
+                if (i + cLen + vLen > textLower.length) continue;
+                let vowelSub = textLower.slice(i + cLen, i + cLen + vLen);
+
+                // --- NEW: GLOTTAL STOP / HIATUS INTERCEPTION ---
+                if (vLen === 2) {
+                  let nextCharIdx = i + cLen + vLen;
+                  
+                  // 1. Handle explicit split like "gula'i" or "ka'in"
+                  // If the user explicitly typed an apostrophe inside the vowel cluster
+                  if (vowelSub[0] === 'a' && textLower[i + cLen + 1] === '\'') {
+                    // Force a fallback to a 1-character vowel ('a'), treating the apostrophe as a boundary
+                    vowelSub = 'a';
+                  }
+                  
+                  // 2. Prevent intervocalic y/w breaking (e.g., kabayo, bawat)
+                  else if (nextCharIdx < textLower.length && 'aeiouāíìîïīúùûüéèěĕëöêəáàâå'.includes(textLower[nextCharIdx])) {
+                    continue; // Skip the 2-character match, try vLen = 1 next
+                  }
+                  
+                  // 3. Handle the Diphthong vs Hiatus Toggle (e.g., kain, gulai)
+                  else if (CONFIGOPTIONS.diphthongMode.states[CONFIGOPTIONS.diphthongMode.index] === 'hiatus') {
+                    // If mode is Hiatus (Tagalog style), treat 'ai' and 'au' as separate vowels
+                    if (vowelSub === 'ai' || vowelSub === 'au') {
+                      continue; // Skip the 2-character match, force single 'a' vowel mapping
+                    }
+                  }
+                }
+
+                if (vowelMappings.has(vowelSub)) {
+                  result += kawiGlyph + vowelMappings.get(vowelSub);
+                  matchedLength = cLen + (vowelSub.length === 1 ? 1 : vLen);
+                  matched = true;
+                  break;
+                }
+              }
+              
+              if (!matched) {
+                let nextIdx = i + cLen;
+                let nextConsLen = 0;
+
+                while (nextIdx < textLower.length && '\u200B'.includes(textLower[nextIdx])) {
+                  nextIdx++;
+                }
+
+                if (nextIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[nextIdx]) && textLower[nextIdx] !== '\u200B') {
+                  for (const testLen of [2, 1]) {
+                    if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
+                      nextConsLen = testLen;
+                      break;
+                    }
+                  }
+                }
+
+                let nextIsConsonant = (nextConsLen > 0);
+                let thirdIsConsonant = false;
+                let fourthIsConsonant = false;
+
+                if (nextIsConsonant) {
+                  let thirdIdx = nextIdx + nextConsLen;
+                  while (thirdIdx < textLower.length && ''.includes(textLower[thirdIdx])) {
+                    thirdIdx++;
+                  }
+                  if (thirdIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[thirdIdx])) {
+                    let thirdConsLen = 0;
+                    for (const testLen of [2, 1]) {
+                      if (standardConsonants.has(textLower.slice(thirdIdx, thirdIdx + testLen))) {
+                        thirdConsLen = testLen;
+                        thirdIsConsonant = true;
+                        break;
+                      }
+                    }
+
+                    if (thirdIsConsonant) {
+                      let fourthIdx = thirdIdx + thirdConsLen;
+                      while (fourthIdx < textLower.length && ''.includes(textLower[fourthIdx])) {
+                        fourthIdx++;
+                      }
+                      if (fourthIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽃'.includes(textLower[fourthIdx])) {
+                        for (const testLen of [2, 1]) {
+                          if (standardConsonants.has(textLower.slice(fourthIdx, fourthIdx + testLen))) {
+                            fourthIsConsonant = true;
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+
+                let insideOpenStack = result.endsWith('𑽂');
+
+                if (nextIsConsonant) {
+                  if (!insideOpenStack) {
+                    if (thirdIsConsonant && !fourthIsConsonant) {
+                      result += kawiGlyph + '𑽁';
+                    } else {
+                      result += kawiGlyph + '𑽂';
+                    }
+                  } else {
+                    if (thirdIsConsonant) {
+                      result += kawiGlyph + '𑽁';
+                    } else {
+                      result += kawiGlyph + '𑽂';
+                    }
+                  }
+                } else {
+                  result += kawiGlyph + '𑽁';
+                }
+
+                matchedLength = cLen;
+                matched = true;
+              }
+            }
+            if (matched) break;
+          }
+
+          if (!matched) {
+            for (const vLen of [3, 2, 1]) {
+              if (i + vLen > textLower.length) continue;
+              let vowelSub = textLower.slice(i, i + vLen);
+
+              if (independentVowels.has(vowelSub)) {
+                result += independentVowels.get(vowelSub);
+                matchedLength = vLen;
+                matched = true;
+                break;
+              }
+            }
+          }
+
+          if (!matched) {
+            result += inputText[i];
+          }
+
+          i += matchedLength;
+        }
+
+        // Handle Raw Continua Mode: Strip visual spaces post-parsing
+        if (CONFIGOPTIONS.spacing.states[CONFIGOPTIONS.spacing.index] === 'continua') {
+          return result.replace(/ /g, '');
+        }
+
+        return result;
+
+      }
     </script>
   </body>
 </html>
