@@ -43,7 +43,7 @@
          url('https://fonts.gstatic.com/s/notosanskawi/v1/memvYa4up_PsoB63x4J15jMv.woff2') format('woff2');
   }
 
-    html, body {
+  html, body {
         margin: 0;
         background-color: #005266;
         color: #fed;
@@ -79,13 +79,13 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 20px; /* Adjust vertical spacing between the two rows */
-        margin-top: 30px;
+        gap: 10px; /* Adjust vertical spacing between the two rows */
+        margin-top: 20px;
       }
       .btn-row {
         display: flex;
         justify-content: center;
-        gap: 20px; /* Adjust horizontal spacing between buttons */
+        gap: 10px; /* Adjust horizontal spacing between buttons */
       }
       .btn {
         font-family: "Noto Sans", "Noto Sans Kawi", sans-serif;
@@ -99,13 +99,17 @@
         font-size: 16px;
         /*max-height: 40px;*/
       }
-      #btn-opt-pepet, #btn-opt-repha, #btn-opt-diphthong, #btn-opt-spacing, #btn-opt-vowel, #btn-opt-indep-vowel {
+      #btn-opt-dh, #btn-opt-pepet, #btn-opt-repha, #btn-opt-diphthong, #btn-opt-vowel, #btn-opt-indep-vowel {
         padding-block-start: 8px;
-        /*min-width: 90px;*/
+        min-width: 105px;
+      }
+      #btn-opt-spacing {
+        padding-block-start: 8px;
+        min-width: 140px;
       }
       #sample-btn {
         padding-block: 8px;
-        /*min-width: 120px;*/
+        min-width: 140px;
       }
       .btn:active {
         background: #005266;
@@ -132,11 +136,14 @@
           <input id="btn-opt-pepet" class="btn" type="button" value="ke → 𑼒𑽀" onclick="cycleOption('pepet')">
           <input id="btn-opt-repha" class="btn" type="button" value="rka → 𑼂𑼒" onclick="cycleOption('repha')">
           <input id="btn-opt-indep-vowel" class="btn" type="button" value="a → 𑼄" onclick="cycleOption('indepVowel')">
+        </div>
+        <div class="btn-row">
           <input id="btn-opt-diphthong" class="btn" type="button" value="kai → 𑼒𑼿" onclick="cycleOption('diphthongMode')">
+          <input id="btn-opt-vowel" class="btn" type="button" value="kaa → 𑼒𑼴" onclick="cycleOption('vowelLength')">
+          <input id="btn-opt-dh" class="btn" type="button" value="dha → 𑼣𑽂𑼲" onclick="cycleOption('dhMode')">
         </div>
         <div class="btn-row">
           <input id="btn-opt-spacing" class="btn" type="button" value="lan ka → 𑼭𑼥𑽁 𑼒" onclick="cycleOption('spacing')">
-          <input id="btn-opt-vowel" class="btn" type="button" value="kaa → 𑼒𑼴" onclick="cycleOption('vowelLength')">
           <input id="sample-btn" class="btn" type="button" value="sample text" onclick="loadSample()">
         </div>
       </div>
@@ -182,17 +189,23 @@
           element: document.getElementById("btn-opt-diphthong") // Match this ID to your HTML button
         },
         vowelLength: {
-    states: ['long', 'hiatus'],
-    labels: ['kaa → 𑼒𑼴', 'kaa → 𑼒𑼄'],
-    index: 0,
-    element: document.getElementById("btn-opt-vowel")
-  },
+          states: ['long', 'hiatus'],
+          labels: ['kaa → 𑼒𑼴', 'kaa → 𑼒𑼄'],
+          index: 0,
+          element: document.getElementById("btn-opt-vowel")
+        },
         indepVowel: {
-    states: ['classic', 'carrier'],
-    labels: ['a → 𑼄', 'a → 𑼲'],
-    index: 0,
-    element: document.getElementById("btn-opt-indep-vowel")
-  },
+          states: ['classic', 'carrier'],
+          labels: ['a → 𑼄', 'a → 𑼲'],
+          index: 0,
+          element: document.getElementById("btn-opt-indep-vowel")
+        },
+        dhMode: {
+          states: ['literal', 'aspirate', 'retroflex'],
+          labels: ['dha → 𑼣𑽂𑼲', 'dha → 𑼤', 'dha → 𑼞', 'dha → '],
+          index: 0,
+          element: document.getElementById("btn-opt-dh")
+        },
       };
 
       const consonantMappings = new Map([
@@ -239,16 +252,26 @@ function updateMappings() {
   const optPepet = CONFIGOPTIONS.pepet.states[CONFIGOPTIONS.pepet.index];
   const optVowel = CONFIGOPTIONS.vowelLength.states[CONFIGOPTIONS.vowelLength.index];
   const optIndep = CONFIGOPTIONS.indepVowel.states[CONFIGOPTIONS.indepVowel.index];
+  const optDh = CONFIGOPTIONS.dhMode.states[CONFIGOPTIONS.dhMode.index];
 
-  // --- DYNAMICALLY UPDATE VOWEL LENGTH BUTTON LABEL ---
-  // If carrier mode is active, hiatus shows 𑼒𑼲; otherwise 𑼒𑼄
+  // Dynamically set 'dh' target in standardConsonants
+  if (optDh === 'literal') {
+    // Tagalog / Compound mode: treat as separate 'd' + 'h'
+    standardConsonants.delete('dh'); 
+  } else if (optDh === 'aspirate') {
+    // Classical / Sanskrit mode: 𑼤 (voiced aspirate dental)
+    standardConsonants.set('dh', 'dha');
+  } else if (optDh === 'retroflex') {
+    // Javanese mode: 𑼞 (retroflex ḍa)
+    standardConsonants.set('dh', 'ḍa');
+  }
+  
   const hiatusGlyph = optIndep === 'carrier' ? '𑼲' : '𑼄';
   CONFIGOPTIONS.vowelLength.labels[1] = `kaa → 𑼒${hiatusGlyph}`;
-  
-  // Refresh the visible button text
+
   CONFIGOPTIONS.vowelLength.element.value = CONFIGOPTIONS.vowelLength.labels[CONFIGOPTIONS.vowelLength.index];
 
-  // --- 1. Dependent Vowels (Signs attached to consonants) ---
+  // Dependent Vowels
   const vowelGroups = [
     { keys: ['a', 'á', 'à', 'â', 'å'], val: '' },
     { keys: ['ā'], val: '𑼴' },
@@ -258,7 +281,9 @@ function updateMappings() {
     { keys: ['ū'], val: '𑼹' },
     { keys: ['ṛ', 'ŗ'], val: '𑼺' },
     { keys: ['ṝ'], val: '𑼺𑼴' },
+    // Accent-marked e ALWAYS stays taling (𑼾), untouched by the pepet toggle
     { keys: ['é', 'è', 'ē'], val: '𑼾' },
+    // Only unaccented 'e' responds to the pepet button state
     { keys: ['e'], val: optPepet === 'classic' ? '𑽀' : '𑼾' },
     { keys: ['ě', 'ĕ', 'ë', 'ë́', 'ë̀', 'ë̂', 'ê', 'ə', 'eu'], val: '𑽀'},
     { keys: ['ai', 'ay'], val: '𑼿' },
@@ -281,7 +306,7 @@ function updateMappings() {
   }
 
   // --- 2. Independent Vowels (Standalone / Initial) ---
-    if (optIndep === 'classic') {
+  if (optIndep === 'classic') {
     // CLASSICAL KAWI INDEPENDENT VOWELS
     const indepList = [
       ['a', '𑼄'], ['à', '𑼄'], ['á', '𑼄'], ['â', '𑼄'], ['å', '𑼄'],
@@ -294,8 +319,19 @@ function updateMappings() {
       ['ṝ', '𑼋'],
       ['ḷ', '𑼌'], ['ļ', '𑼌'],
       ['ḹ', '𑼍'],
-      ['e', '𑼎'], ['è', '𑼎'], ['é', '𑼎'], ['ē', '𑼎'],
-      ['eu', '𑼲𑽀'], ['ě', '𑼲𑽀'], ['ĕ', '𑼲𑽀'], ['ë', '𑼲𑽀'], ['ë́', '𑼲𑽀'], ['ë̀', '𑼲𑽀'], ['ë̂', '𑼲𑽀'], ['ê', '𑼲𑽀'], ['ə', '𑼲𑽀'],
+      
+      // Accented 'e' forms always yield classical taling (𑼎)
+      ['é', '𑼎'], ['è', '𑼎'], ['ē', '𑼎'],
+
+      // Unaccented 'e':
+      // - e = ë mode ('classic' pepet): 𑼄𑽀 (independent 'a' + pepet sign)
+      // - e = é mode ('phonetic' pepet): 𑼎 (classical independent taling)
+      ['e', optPepet === 'classic' ? '𑼄𑽀' : '𑼎'],
+
+      // Other pepet representations (eu, ě, ê, ə, etc.) use 𑼄𑽀 in classic mode
+      ['eu', '𑼄𑽀'], ['ě', '𑼄𑽀'], ['ĕ', '𑼄𑽀'], ['ë', '𑼄𑽀'], 
+      ['ë́', '𑼄𑽀'], ['ë̀', '𑼄𑽀'], ['ë̂', '𑼄𑽀'], ['ê', '𑼄𑽀'], ['ə', '𑼄𑽀'],
+
       ['ai', '𑼏'], ['ay', '𑼏'],
       ['o', '𑼐'], ['ò', '𑼐'], ['ó', '𑼐'], ['ô', '𑼐'],
       ['au', '𑼐𑼴'], ['aw', '𑼐𑼴'],
@@ -305,7 +341,7 @@ function updateMappings() {
       indepList.push(['aa', '𑼅']);
       indepList.push(['ii', '𑼇']);
       indepList.push(['uu', '𑼉']);
-      indepList.push(['ěě', '𑼲𑽀𑼴'], ['ĕĕ', '𑼲𑽀𑼴'], ['ö', '𑼲𑽀𑼴'], ['êê', '𑼲𑽀𑼴'], ['ëë', '𑼲𑽀𑼴'], ['əə', '𑼲𑽀𑼴'], ['euu', '𑼲𑽀𑼴']);
+      indepList.push(['ěě', '𑼄𑽀𑼴'], ['ĕĕ', '𑼄𑽀𑼴'], ['ö', '𑼄𑽀𑼴'], ['êê', '𑼄𑽀𑼴'], ['ëë', '𑼄𑽀𑼴'], ['əə', '𑼄𑽀𑼴'], ['euu', '𑼄𑽀𑼴']);
       indepList.push(['ṛṛ', '𑼋'], ['ŗŗ', '𑼋']);
       indepList.push(['ḷḷ', '𑼍'], ['ļļ', '𑼍']);
     }
@@ -315,8 +351,11 @@ function updateMappings() {
     }
 
   } else {
-    // CARRIER / HA-BASED VOWELS (𑼲 + Dependent Vowel)
-    // Every independent vowel key is constructed by taking '𑼲' + its dependent sign
+    // CARRIER MODE (𑼲 + Dependent Vowel Sign)
+    // Inherits directly from dependent vowelMappings:
+    // - Unaccented 'e' (e = ë mode): 𑼲 + 𑽀 -> 𑼲𑽀
+    // - Unaccented 'e' (e = é mode): 𑼲 + 𑼾 -> 𑼲𑼾
+    // - Accented 'é', 'è', 'ē': 𑼲 + 𑼾 -> 𑼲𑼾
     for (const [vKey, depSign] of vowelMappings.entries()) {
       independentVowels.set(vKey, '𑼲' + depSign);
     }
@@ -360,117 +399,124 @@ function updateMappings() {
       }
 
 function austroToKawi(inputText) {
-  // 1. Normalize and strip acute stress accents
+  const ALL_VOWEL_CHARS = 'aeiouāēīōūáéíóúàèìòùâêîôûäëïöüåěĕəë́ë̀ë̂';
+
+  // 1. Normalize NFD & strip combining tone/accent marks uniformly across e, ê, ë, ö, etc.
   inputText = inputText.normalize('NFD');
-  inputText = inputText.replace(/\u0301/g, '');
+  inputText = inputText.replace(/([a-df-np-z])[\u0300\u0301\u0302\u0303\u0308\u030A]/gi, '$1'); 
+  inputText = inputText.normalize('NFC');
 
   // 2. Pre-process Tagalog abbreviations
   inputText = inputText
-    .replace(/\bng\u0303?(?!\w)/gi, 'nang')
-    .replace(/\bmg\u0303?a?\b/gi, 'manga');
-  
+    .replace(/(?<!\p{L})ng\u0303?(?!\p{L})/giu, 'nang')
+    .replace(/(?<!\p{L})mg\u0303?a?(?!\p{L})/giu, 'manga');
+
   // 3. Fused mode: replace spaces and hyphens with zero-width space, but leave apostrophes untouched!
   if (CONFIGOPTIONS.spacing.states[CONFIGOPTIONS.spacing.index] === 'fused') {
     inputText = inputText.replace(/(?<![\.,:;!?"'\(\)𑽄𑽃𑽅𑽊𑽋𑽉])[ -]/g, '\u200B');
   }
-  
-  // 4. Re-compose back to NFC
-  inputText = inputText.normalize('NFC');
   
   const textLower = inputText.toLowerCase();
   let result = '';
   let i = 0;
   
   while (i < textLower.length) {
-  let char = textLower[i];
+    let char = textLower[i];
 
-  // --- 1. ABSOLUTE ESCAPE HATCH (PASS-THROUGH TAGS) ---
-  if (char === '<') {
-    let closeIdx = inputText.indexOf('>', i);
-    if (closeIdx !== -1) {
-      let rawText = inputText.slice(i + 1, closeIdx);
-      result += rawText;
-      i = closeIdx + 1;
-      continue;
-    }
-  }
-
-  // --- 2. FORCE EXPLICIT N (BYPASS NG/NC DIGRAPHS) ---
-  if (textLower[i] === 'n' && i + 1 < textLower.length && textLower[i + 1] === '\'') {
-    if (i + 2 < textLower.length && 'gcj'.includes(textLower[i + 2])) {
-      let kawiGlyph = consonantMappings.get('na');
-      let insideOpenStack = result.endsWith('𑽂');
-
-      if (!insideOpenStack) {
-        result += kawiGlyph + '𑽂';
-      } else {
-        result += kawiGlyph + '𑽁';
+    // --- 1. ABSOLUTE ESCAPE HATCH (PASS-THROUGH TAGS) ---
+    if (char === '<') {
+      let closeIdx = inputText.indexOf('>', i);
+      if (closeIdx !== -1) {
+        let rawText = inputText.slice(i + 1, closeIdx);
+        result += rawText;
+        i = closeIdx + 1;
+        continue;
       }
-      i += 2; // Consume 'n' and '\''
-      continue;
     }
-  }
 
-  // --- 3. CODA DIACRITIC EVALUATION (NOW HANDLES CODA '\'' -> 𑼃 FIRST!) ---
-  let codaMatched = false;
-  for (const cLen of [2, 1]) {
-    if (i + cLen <= textLower.length) {
-      let potentialCoda = textLower.slice(i, i + cLen);
-      if (codas.has(potentialCoda)) {
-        let nextIdx = i + cLen;
-        
-        let crossedBoundary = false;
-        while (nextIdx < textLower.length && textLower[nextIdx] === '\u200B') {
-          crossedBoundary = true;
-          nextIdx++;
+    // --- 2. FORCE EXPLICIT N (BYPASS NG/NC DIGRAPHS) ---
+    if (textLower[i] === 'n' && i + 1 < textLower.length && textLower[i + 1] === '\'') {
+      if (i + 2 < textLower.length && 'gcj'.includes(textLower[i + 2])) {
+        let kawiGlyph = consonantMappings.get('na');
+        let insideOpenStack = result.endsWith('𑽂');
+
+        if (!insideOpenStack) {
+          result += kawiGlyph + '𑽂';
+        } else {
+          result += kawiGlyph + '𑽁';
         }
-            
-        let nextChar = textLower[nextIdx];
-        let isWordBoundary = !nextChar || ' \'-:;\n\r\t.,𑽉𑽅𑽄𑽊𑽋'.includes(nextChar) || crossedBoundary;
-        
-        let nextIsConsonant = false;
-        let nextIsVowel = false;
-        
-        if (nextChar) {
-          if ('aeiouāēíìîïīúùûüéèěĕëöêəáàâå'.includes(nextChar)) {
-            nextIsVowel = true;
-          } else {
-            for (const testLen of [2, 1]) {
-              if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
-                nextIsConsonant = true;
-                break;
+        i += 2; // Consume 'n' and '\''
+        continue;
+      }
+    }
+
+    // --- 3. CODA DIACRITIC EVALUATION ---
+    let codaMatched = false;
+
+    for (const cLen of [2, 1]) {
+      if (i + cLen <= textLower.length) {
+        let potentialCoda = textLower.slice(i, i + cLen);
+        if (codas.has(potentialCoda)) {
+          let nextIdx = i + cLen;
+          
+          let crossedBoundary = false;
+          while (nextIdx < textLower.length && textLower[nextIdx] === '\u200B') {
+            crossedBoundary = true;
+            nextIdx++;
+          }
+              
+          let nextChar = textLower[nextIdx];
+          let isWordBoundary = !nextChar || ' \'-:;\n\r\t.,𑽉𑽅𑽄𑽊𑽋'.includes(nextChar) || crossedBoundary;
+          
+          let nextIsConsonant = false;
+          let nextIsVowel = false;
+
+          if (nextChar) {
+            if (ALL_VOWEL_CHARS.includes(nextChar)) {
+              nextIsVowel = true;
+            } else {
+              for (const testLen of [2, 1]) {
+                if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
+                  nextIsConsonant = true;
+                  break;
+                }
               }
             }
           }
-        }
 
-        if (isWordBoundary || nextIsConsonant || (crossedBoundary && nextIsVowel)) {
-          let lastChar = result.slice(-1);
-          if (result.length > 0 && !'𑽉𑽅𑽄𑽊𑽃 '.includes(lastChar)) {
-            result += codas.get(potentialCoda);
-            i = nextIdx;
-            codaMatched = true;
-            break;
+          let validCodaContext = false;
+          if (potentialCoda === "'") {
+            validCodaContext = isWordBoundary || crossedBoundary;
+          } else {
+            validCodaContext = isWordBoundary || nextIsConsonant || (crossedBoundary && !nextIsVowel);
+          }
+
+          if (validCodaContext) {
+            let lastChar = result.slice(-1);
+            if (result.length > 0 && !'𑽉𑽅𑽄𑽊𑽃 '.includes(lastChar)) {
+              result += codas.get(potentialCoda);
+              i = nextIdx;
+              codaMatched = true;
+              break;
+            }
           }
         }
       }
     }
-  }
-  if (codaMatched) continue;
+    if (codaMatched) continue;
 
-  char = textLower[i];
+    char = textLower[i];
 
-  // --- 4. APOSTROPHE STACK-BREAKER (RUNS ONLY IF '\'' WAS NOT MATCHED AS A CODA) ---
-  if (char === '\'') {
-    if (result.endsWith('𑽂')) {
-      result = result.slice(0, -1) + '𑽁';
+    // --- 4. APOSTROPHE STACK-BREAKER ---
+    if (char === '\'') {
+      if (result.endsWith('𑽂')) {
+        result = result.slice(0, -1) + '𑽁';
+      }
+      i++;
+      continue;
     }
-    i++;
-    continue;
-  }
 
-  // --- 5. PUNCTUATION HANDLING ---
-    // Note: '\'' is handled above, and '-' is in punctuationMap as ''
+    // --- 5. PUNCTUATION HANDLING ---
     if (punctuationMap.has(char)) {
       result += punctuationMap.get(char);
       
@@ -501,7 +547,16 @@ function austroToKawi(inputText) {
       let modernCons = textLower.slice(i, i + cLen);
 
       if (standardConsonants.has(modernCons)) {
-        // --- REPHA TOGGLE LOGIC ---
+        // Prevent 'ng' from capturing as base consonant if acting as coda
+        if (modernCons === 'ng') {
+          let afterNgIdx = i + 2;
+          let charAfterNg = textLower[afterNgIdx];
+          if (!charAfterNg || !ALL_VOWEL_CHARS.includes(charAfterNg)) {
+            continue; 
+          }
+        }
+
+        // REPHA TOGGLE LOGIC
         if (modernCons === 'r') {
           const rephaMode = CONFIGOPTIONS.repha.states[CONFIGOPTIONS.repha.index];
 
@@ -510,7 +565,6 @@ function austroToKawi(inputText) {
 
             if (!insideOpenStack) {
               let nextIdx = i + cLen;
-              
               while (nextIdx < textLower.length && (textLower[nextIdx] === '\u200B' || textLower[nextIdx] === '-')) {
                 nextIdx++;
               }
@@ -543,10 +597,9 @@ function austroToKawi(inputText) {
           } else if (rephaMode === 'post') {
             let nextIdx = i + cLen;
             let nextChar = textLower[nextIdx];
-            let isBoundary = !nextChar || (' ?!;:*\"={}\\~^()+/&_$#@[]%©®™\n\r\t.,𑽉𑽅𑽄𑽊𑽃-\''.includes(nextChar) && nextChar !== '\u200B');
 
             let followedByVowel = false;
-            if (nextChar && 'aeiouāēīōūáéíóúàèìòùâêîôûäëïöüåěĕə'.includes(nextChar)) {
+            if (nextChar && ALL_VOWEL_CHARS.includes(nextChar)) {
               followedByVowel = true;
             }
 
@@ -612,7 +665,8 @@ function austroToKawi(inputText) {
 
             if (vowelSub[0] === 'a' && textLower[i + cLen + 1] === '\'') {
               vowelSub = 'a';
-            } else if (nextCharIdx < textLower.length && 'aeiouāēīōūáéíóúàèìòùâêîôûäëïöüåěĕə'.includes(textLower[nextCharIdx])) {
+            } else if (nextCharIdx < textLower.length && ALL_VOWEL_CHARS.includes(textLower[nextCharIdx])) {
+              // Changed literal vowel string to ALL_VOWEL_CHARS reference
               continue;
             } else if (CONFIGOPTIONS.diphthongMode.states[CONFIGOPTIONS.diphthongMode.index] === 'hiatus') {
               if (vowelSub === 'ai' || vowelSub === 'au') {
@@ -623,7 +677,7 @@ function austroToKawi(inputText) {
 
           if (vowelMappings.has(vowelSub)) {
             result += kawiGlyph + vowelMappings.get(vowelSub);
-            matchedLength = cLen + (vowelSub.length === 1 ? 1 : vLen);
+            matchedLength = cLen + vowelSub.length;
             matched = true;
             break;
           }
@@ -631,43 +685,36 @@ function austroToKawi(inputText) {
           
         if (!matched) {
           let nextIdx = i + cLen;
-          let nextConsLen = 0;
-          
-          // Skip past any invisible boundaries or hyphens to inspect the following consonant
           while (nextIdx < textLower.length && (textLower[nextIdx] === '\u200B' || textLower[nextIdx] === '-')) {
             nextIdx++;
           }
 
-          // Check if the next character across \u200B / - is a consonant or carrier vowel
-let nextIsConsonant = false;
+          let nextIsConsonant = false;
 
-if (nextIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽋'.includes(textLower[nextIdx])) {
-  // 1. Standard consonant lookahead
-  for (const testLen of [2, 1]) {
-    if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
-      nextIsConsonant = true;
-      break;
-    }
-  }
+          if (nextIdx < textLower.length && !' \t\n\r.,𑽉𑽅𑽄𑽊𑽋'.includes(textLower[nextIdx])) {
+            for (const testLen of [2, 1]) {
+              if (standardConsonants.has(textLower.slice(nextIdx, nextIdx + testLen))) {
+                nextIsConsonant = true;
+                break;
+              }
+            }
 
-  // 2. Carrier mode lookahead: Independent vowels start with 'ha', so they count as consonants!
-  if (!nextIsConsonant && CONFIGOPTIONS.indepVowel.states[CONFIGOPTIONS.indepVowel.index] === 'carrier') {
-    for (const vLen of [3, 2, 1]) {
-      let candidate = textLower.slice(nextIdx, nextIdx + vLen);
-      if (independentVowels.has(candidate)) {
-        nextIsConsonant = true;
-        break;
-      }
-    }
-  }
-}
+            if (!nextIsConsonant && CONFIGOPTIONS.indepVowel.states[CONFIGOPTIONS.indepVowel.index] === 'carrier') {
+              for (const vLen of [3, 2, 1]) {
+                let candidate = textLower.slice(nextIdx, nextIdx + vLen);
+                if (independentVowels.has(candidate)) {
+                  nextIsConsonant = true;
+                  break;
+                }
+              }
+            }
+          }
 
-// Decide stack vs virama
-if (nextIsConsonant) {
-  result += kawiGlyph + '𑽂'; // Opens stack for subjoining!
-} else {
-  result += kawiGlyph + '𑽁';
-}
+          if (nextIsConsonant) {
+            result += kawiGlyph + '𑽂';
+          } else {
+            result += kawiGlyph + '𑽁';
+          }
 
           matchedLength = cLen;
           matched = true;
