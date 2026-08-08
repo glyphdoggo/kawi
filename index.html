@@ -730,11 +730,27 @@ function austroToKawi(inputText) {
       }
       if (matched) break;
     }
-
+    
     if (!matched) {
       for (const vLen of [3, 2, 1]) {
         if (i + vLen > textLower.length) continue;
         let vowelSub = textLower.slice(i, i + vLen);
+
+        // --- NEW SAFEGUARD ---
+        if (vLen === 2) {
+          let nextCharIdx = i + vLen;
+          
+          // 1. Prevent 'ay'/'aw' from stealing the glide if followed by a vowel
+          if (nextCharIdx < textLower.length && ALL_VOWEL_CHARS.includes(textLower[nextCharIdx])) {
+            continue; 
+          } 
+          // 2. Respect the hiatus toggle for independent ai/au
+          else if (CONFIGOPTIONS.diphthongMode.states[CONFIGOPTIONS.diphthongMode.index] === 'hiatus') {
+            if (vowelSub === 'ai' || vowelSub === 'au') {
+              continue;
+            }
+          }
+        }
 
         if (independentVowels.has(vowelSub)) {
           result += independentVowels.get(vowelSub);
