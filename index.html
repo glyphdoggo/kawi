@@ -230,12 +230,12 @@
 
       const punctuationMap = new Map([
         // ['\'', ''],
-        // ['-', ''],
         ['-', ''],
         ['\t', '𑽅'],
         ['.', '𑽄'],
         ['\"', '𑽊'],
-        [',', '𑽉'],
+        // [',', '𑽉'],
+        [',', '𑽃'],
         ['(', '𑽃'],
         [')', '𑽃'],
         [':', '𑽋'],
@@ -254,18 +254,17 @@ function updateMappings() {
   const optIndep = CONFIGOPTIONS.indepVowel.states[CONFIGOPTIONS.indepVowel.index];
   const optDh = CONFIGOPTIONS.dhMode.states[CONFIGOPTIONS.dhMode.index];
 
-  // Dynamically set 'dh' target in standardConsonants
   if (optDh === 'literal') {
-    // Tagalog / Compound mode: treat as separate 'd' + 'h'
     standardConsonants.delete('dh'); 
+    standardConsonants.delete('th'); 
   } else if (optDh === 'aspirate') {
-    // Classical / Sanskrit mode: 𑼤 (voiced aspirate dental)
     standardConsonants.set('dh', 'dha');
+    standardConsonants.set('th', 'tha');
   } else if (optDh === 'retroflex') {
-    // Javanese mode: 𑼞 (retroflex ḍa)
     standardConsonants.set('dh', 'ḍa');
+    standardConsonants.set('th', 'ṭa');
   }
-  
+
   const hiatusGlyph = optIndep === 'carrier' ? '𑼲' : '𑼄';
   CONFIGOPTIONS.vowelLength.labels[1] = `kaa → 𑼒${hiatusGlyph}`;
 
