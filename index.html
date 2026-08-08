@@ -522,7 +522,7 @@ function austroToKawi(inputText) {
       result += punctuationMap.get(char);
       
       if (i + 1 < textLower.length && textLower[i + 1] === ' ') {
-        if (char === ',' || char === '(' || char === ')') {
+        if (char === '(' || char === ')') {
           i += 2; 
         } else {
           result += ' ';
