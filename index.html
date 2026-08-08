@@ -285,7 +285,8 @@ function updateMappings() {
     { keys: ['é', 'è', 'ē'], val: '𑼾' },
     // Only unaccented 'e' responds to the pepet button state
     { keys: ['e'], val: optPepet === 'classic' ? '𑽀' : '𑼾' },
-    { keys: ['ě', 'ĕ', 'ë', 'ë́', 'ë̀', 'ë̂', 'ê', 'ə', 'eu'], val: '𑽀'},
+    { keys: ['ě', 'ĕ', 'ë', 'ë́', 'ë̀', 'ë̂', 'ê', 'ə', 'eu', 'ö'], val: '𑽀'}, 
+    { keys: ['ö'], val: '𑽀𑼴' }, 
     { keys: ['ai', 'ay'], val: '𑼿' },
     { keys: ['o', 'ó', 'ò', 'ô'], val: '𑼾𑼴' },
     { keys: ['au', 'aw'], val: '𑼿𑼴' },
@@ -331,6 +332,7 @@ function updateMappings() {
       // Other pepet representations (eu, ě, ê, ə, etc.) use 𑼄𑽀 in classic mode
       ['eu', '𑼄𑽀'], ['ě', '𑼄𑽀'], ['ĕ', '𑼄𑽀'], ['ë', '𑼄𑽀'], 
       ['ë́', '𑼄𑽀'], ['ë̀', '𑼄𑽀'], ['ë̂', '𑼄𑽀'], ['ê', '𑼄𑽀'], ['ə', '𑼄𑽀'],
+      ['ö', '𑼄𑽀𑼴'],
 
       ['ai', '𑼏'], ['ay', '𑼏'],
       ['o', '𑼐'], ['ò', '𑼐'], ['ó', '𑼐'], ['ô', '𑼐'],
@@ -625,13 +627,20 @@ function austroToKawi(inputText) {
                   insertIdx -= 2;
                 } else if (code === 0x11F42 || code === 0x11F41) {
                   insertIdx -= 2;
-                } else if ((code >= 0x11F12 && code <= 0x11F33) || (code >= 0x11F00 && code <= 0x11F11)) {
-                  insertIdx -= 2;
-                  let prevCp = insertIdx >= 2 ? result.codePointAt(insertIdx - 2) : 0;
-                  if (prevCp !== 0x11F42 && prevCp !== 0x11F41) {
-                    break;
-                  }
-                } else {
+                } else if (code >= 0x11F00 && code <= 0x11F11) {
+  // Independent vowels (0x11F00-0x11F11) never stack. 
+  // They are always the base of the syllable.
+  insertIdx -= 2;
+  break; 
+} else if (code >= 0x11F12 && code <= 0x11F33) {
+  // Consonants (0x11F12-0x11F33) might be part of a stack.
+  insertIdx -= 2;
+  let prevCp = insertIdx >= 2 ? result.codePointAt(insertIdx - 2) : 0;
+  // If not preceded by a Subjoiner (0x11F42) or Pangkon (0x11F41), it's the base.
+  if (prevCp !== 0x11F42 && prevCp !== 0x11F41) { 
+    break;
+  }
+} else {
                   break;
                 }
               }
